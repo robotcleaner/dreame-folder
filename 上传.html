@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Base Management</title>
+    <style>
+        body {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        #adminPanel input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        #adminPanel textarea {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        #adminPanel button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h2>Knowledge Base Management</h2>
+    <div id="adminPanel">
+        <input type="text" id="newKey" placeholder="New keyword">
+        <textarea id="newValue" placeholder="Corresponding answer"></textarea>
+        <button onclick="addEntry()">Add Entry</button>
+        <button onclick="exportKnowledgeBase()">Export Knowledge Base</button>
+        <input type="file" id="jsonFile" accept=".json">
+        <button onclick="uploadJSON()">Import Knowledge Base</button>
+    </div>
+
+    <script>
+        // 初始化知识库
+        let knowledgeBase = {};
+
+        // 从 localStorage 加载知识库
+        function loadKnowledgeBase() {
+            const storedData = localStorage.getItem('knowledgeBase');
+            if (storedData) {
+                knowledgeBase = JSON.parse(storedData);
+            }
+        }
+
+        // 保存知识库到 localStorage
+        function saveKnowledgeBase() {
+            localStorage.setItem('knowledgeBase', JSON.stringify(knowledgeBase));
+        }
+
+        // 页面加载时加载知识库
+        window.onload = function () {
+            loadKnowledgeBase();
+        };
+
+        // 添加新条目
+        function addEntry() {
+            const key = document.getElementById('newKey').value.trim();
+            const value = document.getElementById('newValue').value.trim();
+            if (key && value) {
+                knowledgeBase[key] = value;
+                saveKnowledgeBase(); // 保存到 localStorage
+                alert("Entry added successfully!");
+                document.getElementById('newKey').value = '';
+                document.getElementById('newValue').value = '';
+            } else {
+                alert("Please fill in both fields");
+            }
+        }
+
+        // 导出知识库
+        function exportKnowledgeBase() {
+            const dataStr = JSON.stringify(knowledgeBase);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'knowledgeBase.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 上传 JSON 文件
+        function uploadJSON() {
+            const fileInput = document.getElementById('jsonFile');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    try {
+                        const jsonData = JSON.parse(e.target.result);
+                        if (typeof jsonData !== 'object' || jsonData === null) {
+                            throw new Error("JSON file must contain an object.");
+                        }
+                        // 合并新数据到现有知识库
+                        Object.assign(knowledgeBase, jsonData);
+                        saveKnowledgeBase();
+                        alert("JSON data uploaded successfully!");
+                    } catch (error) {
+                        alert(`Invalid JSON file: ${error.message}`);
+                    }
+                };
+
+                reader.onerror = function (e) {
+                    alert("Error reading file. Please try again.");
+                };
+
+                reader.readAsText(file);
+            } else {
+                alert("Please select a JSON file.");
+            }
+        }
+    </script>
+</body>
+</html>
