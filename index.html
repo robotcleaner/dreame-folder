@@ -482,9 +482,23 @@
     <p>© 2026 Dreame Technology. All rights reserved.</p>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script>
 (function () {
     'use strict';
+
+    // ── gzip-fetch helper (pako decompresses .gz on the client side) ──────
+    function gzFetch(url) {
+        return fetch(url)
+            .then(function (r) {
+                if (!r.ok) throw new Error('Network response was not ok');
+                return r.arrayBuffer();
+            })
+            .then(function (buf) {
+                var text = pako.ungzip(new Uint8Array(buf), { to: 'string' });
+                return JSON.parse(text);
+            });
+    }
 
     // ── i18n ──────────────────────────────────────────────────────────────
     var I18N = {
@@ -646,11 +660,7 @@
         var chunks = [];
         for (var i = 0; i < TOTAL_CHUNKS; i++) {
             chunks.push(
-                fetch('faq_chunk_' + i + '.json')
-                    .then(function (r) {
-                        if (!r.ok) throw new Error('Network response was not ok');
-                        return r.json();
-                    })
+                gzFetch('faq_chunk_' + i + '.json.gz')
             );
         }
         return Promise.all(chunks).then(function (results) {
