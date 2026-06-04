@@ -6,8 +6,8 @@
     <title>Dreame FAQ - Knowledge Base</title>
     <style>
         :root {
-            --red: #E53935;
-            --red-dark: #C62828;
+            --red: #C0392B;
+            --red-dark: #922B21;
             --bg: #F5F6FA;
             --white: #FFFFFF;
             --gray-100: #F1F3F5;
@@ -96,7 +96,7 @@
 
         /* ── Hero ── */
         .hero {
-            background: linear-gradient(135deg, #E53935 0%, #B71C1C 100%);
+            background: linear-gradient(135deg, #C0392B 0%, #922B21 100%);
             padding: 48px 24px 60px;
             text-align: center;
         }
@@ -196,7 +196,7 @@
         }
 
         .tab.active .cnt {
-            background: rgba(229,57,53,0.1);
+            background: rgba(192,57,43,0.1);
             color: var(--red);
         }
 
@@ -232,7 +232,7 @@
 
         .card:hover {
             box-shadow: var(--shadow-hover);
-            border-color: rgba(229,57,53,0.25);
+            border-color: rgba(192,57,43,0.25);
         }
 
         .card-head {
@@ -316,6 +316,18 @@
             color: var(--gray-800);
             line-height: 1.75;
             white-space: pre-wrap;
+        }
+
+        .answer-image {
+            margin-top: 12px;
+            border-radius: 8px;
+            max-width: 100%;
+            max-height: 280px;
+            width: auto;
+            height: auto;
+            display: block;
+            border: 1px solid var(--gray-200);
+            object-fit: cover;
         }
 
         /* ── Pagination ── */
@@ -555,7 +567,7 @@
             }
         },
         jp: {
-            heroTitle: '</minimax:tool_call>しますか？',
+            heroTitle: 'ご支援しますか？',
             heroSubtitle: 'Dreame全製品のナレッジベースを検索',
             searchPlaceholder: '質問を検索...',
             results: '件の結果',
@@ -606,6 +618,7 @@
             });
             applyI18n();
             rebuildTabs();
+            updateOpenCardsLanguage();
             filter();
         });
 
@@ -622,6 +635,32 @@
                 document.getElementById('container').innerHTML =
                     '<div class="empty"><span class="icon">⚠️</span><p>Failed to load FAQ data.</p><small>Check your network and refresh.</small></div>';
             });
+    }
+
+    // ── ISSUE 1 FIX: update open card question + answer text when language changes ──
+    function updateOpenCardsLanguage() {
+        var t = I18N[currentLang];
+        var openCards = document.querySelectorAll('.card.open');
+        openCards.forEach(function (card) {
+            var itemId = parseInt(card.dataset.id, 10);
+            var item = faqData.find(function (d) { return d.id === itemId; });
+            if (!item) return;
+            var q = item.question[currentLang] || item.question.en || '';
+            var s = item.solution[currentLang] || item.solution.en || '';
+            var questionEl = card.querySelector('.question');
+            if (questionEl) questionEl.textContent = q;
+            var answerTextEl = card.querySelector('.answer-text');
+            if (answerTextEl) answerTextEl.textContent = s;
+            // Update badges
+            var badgesEl = card.querySelector('.badges');
+            if (badgesEl) {
+                badgesEl.innerHTML = item.categories.map(function (c) {
+                    var cls = t.b[c] || 'b-other';
+                    var lbl = t.labels[c] || c;
+                    return '<span class="badge ' + cls + '">' + lbl + '</span>';
+                }).join('');
+            }
+        });
     }
 
     function applyI18n() {
@@ -737,12 +776,19 @@
 
         var card = document.createElement('div');
         card.className = 'card';
+        card.dataset.id = item.id;
 
         var badgesHtml = item.categories.map(function (c) {
             var cls = t.b[c] || 'b-other';
             var lbl = t.labels[c] || c;
             return '<span class="badge ' + cls + '">' + lbl + '</span>';
         }).join('');
+
+        // ISSUE 2 FIX: include image in answer area if present
+        var imageHtml = '';
+        if (item.image) {
+            imageHtml = '<img class="answer-image" src="' + escHtml(item.image) + '" alt="FAQ image" loading="lazy">';
+        }
 
         card.innerHTML =
             '<div class="card-head">' +
@@ -757,6 +803,7 @@
                 '<div class="answer-inner">' +
                     '<div class="answer-label">Solution</div>' +
                     '<div class="answer-text">' + escHtml(s) + '</div>' +
+                    imageHtml +
                 '</div>' +
             '</div>';
 
