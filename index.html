@@ -497,6 +497,7 @@
             noResultsHint: 'Try different keywords or browse by category',
             loading: 'Loading knowledge base...',
             allTab: 'All',
+            solution: 'Solution',
             labels: {
                 'Robot Vacuum': 'Robot Vacuum',
                 'Floor Washer': 'Floor Washer',
@@ -618,8 +619,7 @@
             });
             applyI18n();
             rebuildTabs();
-            updateOpenCardsLanguage();
-            filter();
+            render();
         });
 
         document.getElementById('searchInput').addEventListener('input', debounce(filter, 180));
@@ -637,33 +637,7 @@
             });
     }
 
-    // ── ISSUE 1 FIX: update open card question + answer text when language changes ──
-    function updateOpenCardsLanguage() {
-        var t = I18N[currentLang];
-        var openCards = document.querySelectorAll('.card.open');
-        openCards.forEach(function (card) {
-            var itemId = parseInt(card.dataset.id, 10);
-            var item = faqData.find(function (d) { return d.id === itemId; });
-            if (!item) return;
-            var q = item.question[currentLang] || item.question.en || '';
-            var s = item.solution[currentLang] || item.solution.en || '';
-            var questionEl = card.querySelector('.question');
-            if (questionEl) questionEl.textContent = q;
-            var answerTextEl = card.querySelector('.answer-text');
-            if (answerTextEl) answerTextEl.textContent = s;
-            // Update badges
-            var badgesEl = card.querySelector('.badges');
-            if (badgesEl) {
-                badgesEl.innerHTML = item.categories.map(function (c) {
-                    var cls = t.b[c] || 'b-other';
-                    var lbl = t.labels[c] || c;
-                    return '<span class="badge ' + cls + '">' + lbl + '</span>';
-                }).join('');
-            }
-        });
-    }
-
-    function applyI18n() {
+    // ── i18n ──────────────────────────────────────────────────────────────
         var t = I18N[currentLang];
         document.getElementById('heroTitle').textContent = t.heroTitle;
         document.getElementById('heroSubtitle').textContent = t.heroSubtitle;
@@ -801,7 +775,7 @@
             '</div>' +
             '<div class="answer">' +
                 '<div class="answer-inner">' +
-                    '<div class="answer-label">Solution</div>' +
+                    '<div class="answer-label">' + escHtml(t.solution) + '</div>' +
                     '<div class="answer-text">' + escHtml(s) + '</div>' +
                     imageHtml +
                 '</div>' +
