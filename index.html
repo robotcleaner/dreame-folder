@@ -596,6 +596,7 @@
     };
 
     var PAGE_SIZE = 30;
+    var TOTAL_CHUNKS = 10;  // number of faq_chunk_N.json files
     var faqData = [];
     var filtered = [];
     var currentPage = 1;
@@ -624,32 +625,37 @@
 
         document.getElementById('searchInput').addEventListener('input', debounce(filter, 180));
 
-        // Add 20-second timeout to prevent fetch from stalling indefinitely
-        var controller = new AbortController();
-        var timeoutId = setTimeout(function () { controller.abort(); }, 20000);
-
-        fetch('faq_data.json', { signal: controller.signal })
-            .then(function (r) {
-                clearTimeout(timeoutId);
-                if (!r.ok) throw new Error('Network response was not ok');
-                return r.json();
-            })
+        // ── Chunk-based parallel load (replaces single 5MB fetch) ──
+        loadAllChunks()
             .then(function (data) {
                 faqData = data;
                 buildTabs();
                 filter();
-                // Explicitly remove loading state after data loads
                 var loadingEl = document.getElementById('loadingState');
                 if (loadingEl) loadingEl.remove();
             })
             .catch(function (err) {
-                clearTimeout(timeoutId);
-                // Explicitly remove loading state on error
                 var loadingEl = document.getElementById('loadingState');
                 if (loadingEl) loadingEl.remove();
                 document.getElementById('container').innerHTML =
-                    '<div class="empty"><span class="icon">⚠️</span><p>Failed to load FAQ data.</p><small>' + escHtml(err.message || 'Check your network and refresh.') + '</small></div>';
+                    '<div class="empty"><span class="icon">⚠️</span><p>Failed to load FAQ data.</p><small>Slow connection? The data has been split into smaller files. Please check your network and refresh. ' + escHtml(err.message || '') + '</small></div>';
             });
+    }
+
+    function loadAllChunks() {
+        var chunks = [];
+        for (var i = 0; i < TOTAL_CHUNKS; i++) {
+            chunks.push(
+                fetch('faq_chunk_' + i + '.json')
+                    .then(function (r) {
+                        if (!r.ok) throw new Error('Network response was not ok');
+                        return r.json();
+                    })
+            );
+        }
+        return Promise.all(chunks).then(function (results) {
+            return [].concat.apply([], results);
+        });
     }
 
     // ── i18n ──────────────────────────────────────────────────────────────
