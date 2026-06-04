@@ -624,20 +624,36 @@
 
         document.getElementById('searchInput').addEventListener('input', debounce(filter, 180));
 
-        fetch('faq_data.json')
-            .then(function (r) { return r.json(); })
+        // Add 20-second timeout to prevent fetch from stalling indefinitely
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function () { controller.abort(); }, 20000);
+
+        fetch('faq_data.json', { signal: controller.signal })
+            .then(function (r) {
+                clearTimeout(timeoutId);
+                if (!r.ok) throw new Error('Network response was not ok');
+                return r.json();
+            })
             .then(function (data) {
                 faqData = data;
                 buildTabs();
                 filter();
+                // Explicitly remove loading state after data loads
+                var loadingEl = document.getElementById('loadingState');
+                if (loadingEl) loadingEl.remove();
             })
-            .catch(function () {
+            .catch(function (err) {
+                clearTimeout(timeoutId);
+                // Explicitly remove loading state on error
+                var loadingEl = document.getElementById('loadingState');
+                if (loadingEl) loadingEl.remove();
                 document.getElementById('container').innerHTML =
-                    '<div class="empty"><span class="icon">⚠️</span><p>Failed to load FAQ data.</p><small>Check your network and refresh.</small></div>';
+                    '<div class="empty"><span class="icon">⚠️</span><p>Failed to load FAQ data.</p><small>' + escHtml(err.message || 'Check your network and refresh.') + '</small></div>';
             });
     }
 
     // ── i18n ──────────────────────────────────────────────────────────────
+    function applyI18n() {
         var t = I18N[currentLang];
         document.getElementById('heroTitle').textContent = t.heroTitle;
         document.getElementById('heroSubtitle').textContent = t.heroSubtitle;
