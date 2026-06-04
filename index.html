@@ -468,7 +468,7 @@
     <div id="container">
         <div class="loading" id="loadingState">
             <div class="spinner"></div>
-            Loading knowledge base...
+            <span id="loadingText">Loading knowledge base...</span>
         </div>
     </div>
     <div class="pagination" id="pagination"></div>
@@ -486,19 +486,6 @@
 <script>
 (function () {
     'use strict';
-
-    // ── gzip-fetch helper (pako decompresses .gz on the client side) ──────
-    function gzFetch(url) {
-        return fetch(url)
-            .then(function (r) {
-                if (!r.ok) throw new Error('Network response was not ok');
-                return r.arrayBuffer();
-            })
-            .then(function (buf) {
-                var text = pako.ungzip(new Uint8Array(buf), { to: 'string' });
-                return JSON.parse(text);
-            });
-    }
 
     // ── i18n ──────────────────────────────────────────────────────────────
     var I18N = {
@@ -582,7 +569,7 @@
             }
         },
         jp: {
-            heroTitle: 'ご支援しますか？',
+            heroTitle: 'いかがお手伝いできますか？',
             heroSubtitle: 'Dreame全製品のナレッジベースを検索',
             searchPlaceholder: '質問を検索...',
             results: '件の結果',
@@ -610,61 +597,118 @@
     };
 
     var PAGE_SIZE = 30;
-    var TOTAL_CHUNKS = 10;  // number of faq_chunk_N.json files
+    var TOTAL_CHUNKS = 10;
     var faqData = [];
     var filtered = [];
     var currentPage = 1;
     var currentLang = localStorage.getItem('dfaq-lang') || 'en';
     var currentCat = 'All';
+    var isDataLoaded = false;
 
-    // ── init ────────────────────────────────────────────────────────────────
+    // ── gzip-fetch helper ─────────────────────────────────────────────────
+    function gzFetch(url) {
+        return fetch(url)
+            .then(function (r) {
+                if (!r.ok) throw new Error('Network response was not ok: ' + r.status);
+                return r.arrayBuffer();
+            })
+            .then(function (buf) {
+                if (typeof pako === 'undefined') {
+                    throw new Error('pako library not loaded');
+                }
+                var text = pako.ungzip(new Uint8Array(buf), { to: 'string' });
+                return JSON.parse(text);
+            });
+    }
+
+    // ── fetch with fallback ───────────────────────────────────────────────
+    function fetchChunk(i) {
+        var gzUrl = 'faq_chunk_' + i + '.json.gz';
+        var jsonUrl = 'faq_chunk_' + i + '.json';
+        
+        return gzFetch(gzUrl).catch(function(err) {
+            console.log('Gzip load failed for chunk ' + i + ', trying JSON:', err.message);
+            return fetch(jsonUrl)
+                .then(function(r) {
+                    if (!r.ok) throw new Error('JSON fallback failed: ' + r.status);
+                    return r.json();
+                });
+        });
+    }
+
+    // ── init ───────────────────────────────────────────────────────────────
     function init() {
+        // Set initial language UI
         document.querySelectorAll('.lang-btn').forEach(function (btn) {
             btn.classList.toggle('active', btn.dataset.lang === currentLang);
         });
         applyI18n();
 
+        // Language toggle event
         document.getElementById('langToggle').addEventListener('click', function (e) {
             var btn = e.target.closest('.lang-btn');
             if (!btn) return;
-            currentLang = btn.dataset.lang;
+            
+            var newLang = btn.dataset.lang;
+            if (newLang === currentLang) return;
+            
+            currentLang = newLang;
             localStorage.setItem('dfaq-lang', currentLang);
+            
             document.querySelectorAll('.lang-btn').forEach(function (b) {
                 b.classList.toggle('active', b.dataset.lang === currentLang);
             });
+            
             applyI18n();
             rebuildTabs();
-            render();
+            
+            if (isDataLoaded) {
+                render();
+            }
         });
 
-        document.getElementById('searchInput').addEventListener('input', debounce(filter, 180));
+        // Search input event
+        document.getElementById('searchInput').addEventListener('input', debounce(function() {
+            filter();
+        }, 180));
 
-        // ── Chunk-based parallel load (replaces single 5MB fetch) ──
+        // Load all data chunks
         loadAllChunks()
             .then(function (data) {
                 faqData = data;
+                isDataLoaded = true;
+                
+                var loadingEl = document.getElementById('loadingState');
+                if (loadingEl) loadingEl.style.display = 'none';
+                
                 buildTabs();
                 filter();
-                var loadingEl = document.getElementById('loadingState');
-                if (loadingEl) loadingEl.remove();
             })
             .catch(function (err) {
+                console.error('Failed to load FAQ data:', err);
                 var loadingEl = document.getElementById('loadingState');
-                if (loadingEl) loadingEl.remove();
+                if (loadingEl) loadingEl.style.display = 'none';
+                
                 document.getElementById('container').innerHTML =
-                    '<div class="empty"><span class="icon">⚠️</span><p>Failed to load FAQ data.</p><small>Slow connection? The data has been split into smaller files. Please check your network and refresh. ' + escHtml(err.message || '') + '</small></div>';
+                    '<div class="empty"><span class="icon">⚠️</span><p>Failed to load FAQ data.</p><small>' + 
+                    escHtml(err.message || 'Please check your network connection and refresh.') + 
+                    '</small></div>';
             });
     }
 
     function loadAllChunks() {
         var chunks = [];
         for (var i = 0; i < TOTAL_CHUNKS; i++) {
-            chunks.push(
-                gzFetch('faq_chunk_' + i + '.json.gz')
-            );
+            chunks.push(fetchChunk(i));
         }
         return Promise.all(chunks).then(function (results) {
-            return [].concat.apply([], results);
+            var allData = [];
+            results.forEach(function(r) {
+                if (Array.isArray(r)) {
+                    allData = allData.concat(r);
+                }
+            });
+            return allData;
         });
     }
 
@@ -674,42 +718,43 @@
         document.getElementById('heroTitle').textContent = t.heroTitle;
         document.getElementById('heroSubtitle').textContent = t.heroSubtitle;
         document.getElementById('searchInput').placeholder = t.searchPlaceholder;
-        document.getElementById('loadingState').textContent = t.loading;
+        
+        var loadingTextEl = document.getElementById('loadingText');
+        if (loadingTextEl) {
+            loadingTextEl.textContent = t.loading;
+        }
     }
 
     // ── Tabs ───────────────────────────────────────────────────────────────
     function buildTabs() {
         var counts = {};
         faqData.forEach(function (item) {
-            item.categories.forEach(function (c) { counts[c] = (counts[c] || 0) + 1; });
+            item.categories.forEach(function (c) { 
+                counts[c] = (counts[c] || 0) + 1; 
+            });
         });
 
         var order = ['All', 'Robot Vacuum', 'Floor Washer', 'Hair Dryer', 'Wet/Dry Vacuum', 'Accessories', 'Others'];
         var cats = order.filter(function (c) { return c === 'All' || counts[c]; });
         if (cats.length === 1) {
-            Object.keys(counts).forEach(function (c) { if (!cats.includes(c)) cats.push(c); });
+            Object.keys(counts).forEach(function (c) { 
+                if (!cats.includes(c)) cats.push(c); 
+            });
         }
 
         renderTabs(cats, counts);
     }
 
     function rebuildTabs() {
-        var counts = {};
-        faqData.forEach(function (item) {
-            item.categories.forEach(function (c) { counts[c] = (counts[c] || 0) + 1; });
-        });
-        var order = ['All', 'Robot Vacuum', 'Floor Washer', 'Hair Dryer', 'Wet/Dry Vacuum', 'Accessories', 'Others'];
-        var cats = order.filter(function (c) { return c === 'All' || counts[c]; });
-        if (cats.length === 1) {
-            Object.keys(counts).forEach(function (c) { if (!cats.includes(c)) cats.push(c); });
-        }
-        renderTabs(cats, counts);
+        if (!isDataLoaded) return;
+        buildTabs();
     }
 
     function renderTabs(cats, counts) {
         var t = I18N[currentLang];
         var el = document.getElementById('tabs');
         el.innerHTML = '';
+        
         cats.forEach(function (cat) {
             var btn = document.createElement('button');
             btn.className = 'tab' + (cat === currentCat ? ' active' : '');
@@ -730,6 +775,8 @@
 
     // ── Filter & Render ───────────────────────────────────────────────────
     function filter() {
+        if (!isDataLoaded) return;
+        
         var query = document.getElementById('searchInput').value.trim().toLowerCase();
 
         filtered = faqData.filter(function (item) {
@@ -790,7 +837,6 @@
             return '<span class="badge ' + cls + '">' + lbl + '</span>';
         }).join('');
 
-        // ISSUE 2 FIX: include image in answer area if present
         var imageHtml = '';
         if (item.image) {
             imageHtml = '<img class="answer-image" src="' + escHtml(item.image) + '" alt="FAQ image" loading="lazy">';
@@ -885,13 +931,15 @@
     }
 
     function escHtml(str) {
-        return str
+        if (!str) return '';
+        return String(str)
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;');
     }
 
+    // Start initialization
     init();
 }());
 </script>
