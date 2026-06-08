@@ -189,6 +189,16 @@
             color: var(--gray-500);
         }
         .error { color: #dc2626; }
+        .debug-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
         .pagination {
             display: flex;
             justify-content: center;
@@ -225,15 +235,16 @@
     <div class="container">
         <div class="controls">
             <div class="lang-selector">
-                <button class="lang-btn active" onclick="setLang('cn')">中文</button>
-                <button class="lang-btn" onclick="setLang('en')">English</button>
-                <button class="lang-btn" onclick="setLang('jp')">日本語</button>
-                <button class="lang-btn" onclick="setLang('kr')">한국어</button>
+                <button class="lang-btn active" data-lang="cn">中文</button>
+                <button class="lang-btn" data-lang="en">English</button>
+                <button class="lang-btn" data-lang="jp">日本語</button>
+                <button class="lang-btn" data-lang="kr">한국어</button>
             </div>
-            <input type="text" class="search-box" id="search-box" placeholder="搜索问题或答案..." oninput="handleSearch(this.value)">
+            <input type="text" class="search-box" id="search-box" placeholder="搜索问题或答案...">
         </div>
         <div class="product-tabs" id="product-tabs"></div>
         <div class="stats" id="stats"></div>
+        <div id="debug-info" class="debug-info" style="display:none;"></div>
         <div id="content">
             <div class="loading">📦 正在加载 FAQ 数据...</div>
         </div>
@@ -248,10 +259,11 @@
         // State - 默认显示全部产品
         let allData = [];
         let currentLang = 'cn';
-        let currentProduct = 'all';  // 默认显示全部
+        let currentProduct = 'all';
         let currentPage = 1;
         let searchQuery = '';
         let isLoading = true;
+        let loadErrors = [];
 
         // Product translations
         const productLabels = {
@@ -269,6 +281,13 @@
             '泳池机器人': 'pool', 'Pool Robot': 'pool', 'プールロボット': 'pool', '수영장로봇': 'pool'
         };
 
+        // Debug function
+        function showDebug(info) {
+            const debugEl = document.getElementById('debug-info');
+            debugEl.style.display = 'block';
+            debugEl.textContent = typeof info === 'object' ? JSON.stringify(info, null, 2) : info;
+        }
+
         // Initialize
         async function init() {
             try {
@@ -279,7 +298,8 @@
                 isLoading = false;
             } catch (error) {
                 console.error('Error loading data:', error);
-                document.getElementById('content').innerHTML = '<div class="error">❌ 加载数据失败，请刷新页面重试<br><small>' + error.message + '</small></div>';
+                showDebug({ error: error.message, stack: error.stack });
+                document.getElementById('content').innerHTML = '<div class="error">❌ 加载数据失败<br><small>' + error.message + '</small></div>';
             }
         }
 
@@ -287,20 +307,35 @@
         async function loadAllData() {
             const config = await fetch(CONFIG_URL).then(r => r.json());
             const totalChunks = config.totalChunks;
-
-            const chunks = await Promise.all(
-                Array.from({ length: totalChunks }, (_, i) => loadChunk(i))
-            );
-
-            allData = chunks.flatMap(chunk => chunk.faqs || []);
-            console.log('Loaded', allData.length, 'FAQs from', totalChunks, 'chunks');
+            
+            // Load chunks sequentially for better error handling
+            allData = [];
+            loadErrors = [];
+            
+            for (let i = 0; i < totalChunks; i++) {
+                try {
+                    const chunk = await loadChunk(i);
+                    const faqs = chunk.faqs || [];
+                    allData = allData.concat(faqs);
+                    console.log('Chunk', i, 'loaded:', faqs.length, 'FAQs');
+                } catch (err) {
+                    console.error('Failed to load chunk', i, err);
+                    loadErrors.push({ chunk: i, error: err.message });
+                }
+            }
+            
+            console.log('Total loaded:', allData.length, 'FAQs');
+            
+            if (loadErrors.length > 0) {
+                console.warn('Load errors:', loadErrors);
+            }
         }
 
         // Load single chunk
         async function loadChunk(index) {
             const response = await fetch(CHUNK_PREFIX + index + '.json.gz');
             if (!response.ok) {
-                throw new Error('Failed to load chunk ' + index + ': ' + response.status);
+                throw new Error('HTTP ' + response.status);
             }
             const compressed = await response.arrayBuffer();
             const decompressed = pako.inflate(new Uint8Array(compressed), { to: 'string' });
@@ -311,8 +346,9 @@
         function setLang(lang) {
             currentLang = lang;
             currentPage = 1;
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
             renderProductTabs();
             renderContent();
         }
@@ -337,14 +373,16 @@
             const counts = getProductCounts();
             const labels = productLabels[currentLang];
             const container = document.getElementById('product-tabs');
-
-            let html = '';
-            for (const [key, label] of Object.entries(labels)) {
+            container.innerHTML = Object.entries(labels).map(([key, label]) => {
                 const count = counts[key] || 0;
                 const active = currentProduct === key ? 'active' : '';
-                html += '<button class="product-tab ' + active + '" onclick="setProduct(\'' + key + '\')">' + label + ' (' + count + ')</button>';
-            }
-            container.innerHTML = html;
+                return '<button class="product-tab ' + active + '" data-product="' + key + '">' + label + ' (' + count + ')</button>';
+            }).join('');
+            
+            // Add click handlers
+            container.querySelectorAll('.product-tab').forEach(tab => {
+                tab.addEventListener('click', () => setProduct(tab.dataset.product));
+            });
         }
 
         // Get product counts
@@ -385,7 +423,7 @@
             if (isLoading) return;
 
             const filtered = getFilteredData();
-            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
             const start = (currentPage - 1) * ITEMS_PER_PAGE;
             const pageData = filtered.slice(start, start + ITEMS_PER_PAGE);
 
@@ -397,7 +435,9 @@
             }
 
             // Update stats
-            document.getElementById('stats').textContent = '共 ' + filtered.length + ' 条 · 第 ' + currentPage + '/' + totalPages + ' 页';
+            document.getElementById('stats').textContent = 
+                '共 ' + filtered.length + ' 条 · 第 ' + currentPage + '/' + totalPages + ' 页' +
+                (loadErrors.length > 0 ? ' (加载错误: ' + loadErrors.length + '个chunk)' : '');
 
             // Render cards
             let html = '<div>';
@@ -454,7 +494,6 @@
         // Format answer with links
         function formatAnswer(text) {
             if (!text) return '';
-            // Convert URLs to links
             return escapeHtml(text).replace(
                 /(https?:\/\/[^\s]+)/g,
                 '<a href="$1" target="_blank" rel="noopener">$1</a>'
@@ -492,8 +531,21 @@
             return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
 
-        // Start
-        init();
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Language buttons
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => setLang(btn.dataset.lang));
+            });
+            
+            // Search box
+            document.getElementById('search-box').addEventListener('input', function() {
+                handleSearch(this.value);
+            });
+            
+            // Initialize
+            init();
+        });
     </script>
 </body>
 </html>
