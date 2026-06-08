@@ -245,10 +245,10 @@
         const CHUNK_PREFIX = 'faq_chunk_';
         const ITEMS_PER_PAGE = 30;
 
-        // State
+        // State - 默认显示全部产品
         let allData = [];
         let currentLang = 'cn';
-        let currentProduct = 'all';
+        let currentProduct = 'all';  // 默认显示全部
         let currentPage = 1;
         let searchQuery = '';
         let isLoading = true;
@@ -279,7 +279,7 @@
                 isLoading = false;
             } catch (error) {
                 console.error('Error loading data:', error);
-                document.getElementById('content').innerHTML = '<div class="error">❌ 加载数据失败，请刷新页面重试</div>';
+                document.getElementById('content').innerHTML = '<div class="error">❌ 加载数据失败，请刷新页面重试<br><small>' + error.message + '</small></div>';
             }
         }
 
@@ -293,12 +293,15 @@
             );
 
             allData = chunks.flatMap(chunk => chunk.faqs || []);
-            console.log('Loaded', allData.length, 'FAQs');
+            console.log('Loaded', allData.length, 'FAQs from', totalChunks, 'chunks');
         }
 
         // Load single chunk
         async function loadChunk(index) {
             const response = await fetch(CHUNK_PREFIX + index + '.json.gz');
+            if (!response.ok) {
+                throw new Error('Failed to load chunk ' + index + ': ' + response.status);
+            }
             const compressed = await response.arrayBuffer();
             const decompressed = pako.inflate(new Uint8Array(compressed), { to: 'string' });
             return JSON.parse(decompressed);
@@ -339,7 +342,7 @@
             for (const [key, label] of Object.entries(labels)) {
                 const count = counts[key] || 0;
                 const active = currentProduct === key ? 'active' : '';
-                html += '<button class="product-tab ' + active + '" onclick="setProduct(&quot;' + key + '&quot;)">' + label + ' (' + count + ')</button>';
+                html += '<button class="product-tab ' + active + '" onclick="setProduct(\'' + key + '\')">' + label + ' (' + count + ')</button>';
             }
             container.innerHTML = html;
         }
