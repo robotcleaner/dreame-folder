@@ -650,7 +650,7 @@
             try {
                 const configRes = await fetch('config.json');
                 const config = await configRes.json();
-                const totalChunks = config.totalChunks || 1;
+                const totalChunks = config.totalChunks || 9;
 
                 const chunks = await Promise.all(
                     Array.from({ length: totalChunks }, async (_, i) => {
