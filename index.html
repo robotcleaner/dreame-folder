@@ -198,6 +198,7 @@
             font-size: 0.8rem;
             font-family: monospace;
             white-space: pre-wrap;
+            display: none;
         }
         .pagination {
             display: flex;
@@ -244,7 +245,7 @@
         </div>
         <div class="product-tabs" id="product-tabs"></div>
         <div class="stats" id="stats"></div>
-        <div id="debug-info" class="debug-info" style="display:none;"></div>
+        <div id="debug-info" class="debug-info"></div>
         <div id="content">
             <div class="loading">📦 正在加载 FAQ 数据...</div>
         </div>
@@ -256,7 +257,7 @@
         const CHUNK_PREFIX = 'faq_chunk_';
         const ITEMS_PER_PAGE = 30;
 
-        // State - 默认显示全部产品
+        // State
         let allData = [];
         let currentLang = 'cn';
         let currentProduct = 'all';
@@ -308,14 +309,14 @@
             const config = await fetch(CONFIG_URL).then(r => r.json());
             const totalChunks = config.totalChunks;
             
-            // Load chunks sequentially for better error handling
             allData = [];
             loadErrors = [];
             
             for (let i = 0; i < totalChunks; i++) {
                 try {
                     const chunk = await loadChunk(i);
-                    const faqs = chunk.faqs || [];
+                    // 兼容两种格式: {faqs: [...]} 或直接 [...]
+                    const faqs = Array.isArray(chunk) ? chunk : (chunk.faqs || []);
                     allData = allData.concat(faqs);
                     console.log('Chunk', i, 'loaded:', faqs.length, 'FAQs');
                 } catch (err) {
@@ -325,10 +326,14 @@
             }
             
             console.log('Total loaded:', allData.length, 'FAQs');
-            
-            if (loadErrors.length > 0) {
-                console.warn('Load errors:', loadErrors);
-            }
+            showDebug({ 
+                totalLoaded: allData.length, 
+                errors: loadErrors,
+                sample: allData.slice(0, 2).map(item => ({
+                    product: item.product,
+                    question: item.question?.cn?.substring(0, 30)
+                }))
+            });
         }
 
         // Load single chunk
@@ -379,7 +384,6 @@
                 return '<button class="product-tab ' + active + '" data-product="' + key + '">' + label + ' (' + count + ')</button>';
             }).join('');
             
-            // Add click handlers
             container.querySelectorAll('.product-tab').forEach(tab => {
                 tab.addEventListener('click', () => setProduct(tab.dataset.product));
             });
@@ -402,13 +406,11 @@
         // Filter and paginate data
         function getFilteredData() {
             return allData.filter(item => {
-                // Filter by product
                 if (currentProduct !== 'all') {
                     const productCn = item.product?.cn || item.categories?.[0] || '';
                     const productMap = { vacuum: '扫地', scrubber: '洗地', cleaner: '吸尘', dryer: '吹风', pool: '泳池' };
                     if (!productCn.includes(productMap[currentProduct])) return false;
                 }
-                // Filter by search
                 if (searchQuery) {
                     const q = (item.question?.[currentLang] || '').toLowerCase();
                     const a = (item.answer?.[currentLang] || '').toLowerCase();
@@ -434,26 +436,22 @@
                 return;
             }
 
-            // Update stats
             document.getElementById('stats').textContent = 
                 '共 ' + filtered.length + ' 条 · 第 ' + currentPage + '/' + totalPages + ' 页' +
                 (loadErrors.length > 0 ? ' (加载错误: ' + loadErrors.length + '个chunk)' : '');
 
-            // Render cards
             let html = '<div>';
             pageData.forEach((item, i) => {
                 html += renderFAQCard(item, start + i);
             });
             html += '</div>';
 
-            // Pagination
             if (totalPages > 1) {
                 html += renderPagination(totalPages);
             }
 
             container.innerHTML = html;
 
-            // Add click handlers
             container.querySelectorAll('.faq-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     if (e.target.closest('a')) return;
@@ -533,17 +531,14 @@
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
-            // Language buttons
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.addEventListener('click', () => setLang(btn.dataset.lang));
             });
             
-            // Search box
             document.getElementById('search-box').addEventListener('input', function() {
                 handleSearch(this.value);
             });
             
-            // Initialize
             init();
         });
     </script>
