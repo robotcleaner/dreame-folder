@@ -3,229 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dreame FAQ - 多语言智能问答系统</title>
+    <title>Dreame FAQ</title>
     <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
     <style>
-        :root {
-            --primary: #dc2626;
-            --primary-light: #fef2f2;
-            --gray-50: #f9fafb;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-500: #6b7280;
-            --gray-700: #374151;
-            --gray-900: #111827;
-            --radius: 8px;
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
+        :root { --primary: #dc2626; --gray-50: #f9fafb; --gray-200: #e5e7eb; --gray-500: #6b7280; --gray-700: #374151; --gray-900: #111827; --radius: 8px; --shadow: 0 1px 3px 0 rgba(0,0,0,0.1); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
-            background: var(--gray-50);
-            color: var(--gray-900);
-            line-height: 1.6;
-        }
-        .header {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-            color: white;
-            padding: 2rem 1rem;
-            text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif; background: var(--gray-50); color: var(--gray-900); line-height: 1.6; }
+        .header { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 2rem 1rem; text-align: center; }
         .header h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .header p { opacity: 0.9; font-size: 0.95rem; }
         .container { max-width: 900px; margin: 0 auto; padding: 1rem; }
-        .controls {
-            background: white;
-            border-radius: var(--radius);
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: var(--shadow);
-        }
-        .lang-selector {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-        .lang-btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--gray-200);
-            background: white;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
-        .lang-btn:hover { background: var(--gray-50); }
+        .controls { background: white; border-radius: var(--radius); padding: 1rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
+        .lang-selector { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .lang-btn { padding: 0.5rem 1rem; border: 1px solid var(--gray-200); background: white; border-radius: var(--radius); cursor: pointer; font-size: 0.875rem; }
         .lang-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .search-box {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--gray-200);
-            border-radius: var(--radius);
-            font-size: 0.95rem;
-        }
-        .search-box:focus { outline: none; border-color: var(--primary); }
-        .product-tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            overflow-x: auto;
-            padding-bottom: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .product-tab {
-            padding: 0.5rem 0.875rem;
-            border: 1px solid var(--gray-200);
-            background: white;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-        .product-tab:hover { background: var(--gray-50); }
+        .search-box { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--gray-200); border-radius: var(--radius); font-size: 0.95rem; }
+        .product-tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .product-tab { padding: 0.5rem 0.875rem; border: 1px solid var(--gray-200); background: white; border-radius: 20px; cursor: pointer; font-size: 0.8rem; }
         .product-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .stats {
-            background: white;
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius);
-            margin-bottom: 1rem;
-            font-size: 0.875rem;
-            color: var(--gray-500);
-        }
-        .faq-card {
-            background: white;
-            border-radius: var(--radius);
-            margin-bottom: 0.75rem;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            cursor: pointer;
-            transition: box-shadow 0.2s;
-        }
-        .faq-card:hover { box-shadow: var(--shadow-md); }
-        .faq-header {
-            padding: 1rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-        }
-        .faq-badge {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-            min-width: 100px;
-        }
-        .product-tag {
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-align: center;
-        }
+        .stats { background: white; padding: 0.75rem 1rem; border-radius: var(--radius); margin-bottom: 1rem; font-size: 0.875rem; color: var(--gray-500); }
+        .faq-card { background: white; border-radius: var(--radius); margin-bottom: 0.75rem; box-shadow: var(--shadow); overflow: hidden; cursor: pointer; }
+        .faq-header { padding: 1rem; display: flex; align-items: flex-start; gap: 0.75rem; }
+        .faq-badge { display: flex; flex-direction: column; gap: 0.25rem; min-width: 100px; }
+        .product-tag { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-align: center; background: #e5e7eb; color: #374151; }
         .product-tag.vacuum { background: #dbeafe; color: #1d4ed8; }
         .product-tag.scrubber { background: #dcfce7; color: #15803d; }
         .product-tag.cleaner { background: #fef3c7; color: #b45309; }
         .product-tag.dryer { background: #fce7f3; color: #be185d; }
         .product-tag.pool { background: #e0f2fe; color: #0369a1; }
-        .product-model {
-            font-size: 0.7rem;
-            color: var(--gray-500);
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100px;
-        }
+        .product-model { font-size: 0.7rem; color: var(--gray-500); text-align: center; }
         .faq-content { flex: 1; }
-        .faq-question {
-            font-weight: 600;
-            color: var(--gray-900);
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5rem;
-        }
-        .faq-icon {
-            background: var(--primary);
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        .faq-toggle {
-            color: var(--gray-400);
-            font-size: 0.75rem;
-            transition: transform 0.2s;
-        }
+        .faq-question { font-weight: 600; color: var(--gray-900); display: flex; align-items: flex-start; gap: 0.5rem; }
+        .faq-icon { background: var(--primary); color: white; width: 20px; height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+        .faq-toggle { color: var(--gray-500); font-size: 0.75rem; transition: transform 0.2s; }
         .faq-card.expanded .faq-toggle { transform: rotate(180deg); }
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            background: var(--gray-50);
-        }
+        .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: var(--gray-50); }
         .faq-card.expanded .faq-answer { max-height: 2000px; }
-        .faq-answer-inner {
-            padding: 1rem;
-            padding-left: calc(100px + 1.75rem);
-            color: var(--gray-700);
-            font-size: 0.95rem;
-            line-height: 1.7;
-        }
-        .faq-answer-inner a { color: var(--primary); }
-        .loading, .error {
-            text-align: center;
-            padding: 3rem;
-            color: var(--gray-500);
-        }
-        .error { color: #dc2626; }
-        .debug-info {
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: var(--radius);
-            padding: 1rem;
-            margin-bottom: 1rem;
-            font-size: 0.8rem;
-            font-family: monospace;
-            white-space: pre-wrap;
-            display: none;
-        }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 0.25rem;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .page-btn {
-            padding: 0.5rem 0.75rem;
-            border: 1px solid var(--gray-200);
-            background: white;
-            border-radius: var(--radius);
-            cursor: pointer;
-            font-size: 0.875rem;
-            min-width: 36px;
-        }
-        .page-btn:hover:not(:disabled) { background: var(--gray-50); }
-        .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .faq-answer-inner { padding: 1rem; padding-left: calc(100px + 1.75rem); color: var(--gray-700); font-size: 0.95rem; }
+        .loading { text-align: center; padding: 3rem; color: var(--gray-500); }
+        .pagination { display: flex; justify-content: center; gap: 0.25rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        .page-btn { padding: 0.5rem 0.75rem; border: 1px solid var(--gray-200); background: white; border-radius: var(--radius); cursor: pointer; }
+        .page-btn.active { background: var(--primary); color: white; }
         .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .page-ellipsis { padding: 0.5rem; color: var(--gray-400); }
-        @media (max-width: 600px) {
-            .header h1 { font-size: 1.25rem; }
-            .faq-header { flex-direction: column; }
-            .faq-badge { flex-direction: row; align-items: center; min-width: auto; }
-            .faq-answer-inner { padding-left: 1rem; }
-        }
+        @media (max-width: 600px) { .faq-header { flex-direction: column; } .faq-badge { flex-direction: row; min-width: auto; } .faq-answer-inner { padding-left: 1rem; } }
     </style>
 </head>
 <body>
@@ -245,28 +64,20 @@
         </div>
         <div class="product-tabs" id="product-tabs"></div>
         <div class="stats" id="stats"></div>
-        <div id="debug-info" class="debug-info"></div>
-        <div id="content">
-            <div class="loading">📦 正在加载 FAQ 数据...</div>
-        </div>
+        <div id="content"><div class="loading">📦 正在加载 FAQ 数据...</div></div>
     </div>
 
     <script>
-        // Configuration
         const CONFIG_URL = 'config.json';
         const CHUNK_PREFIX = 'faq_chunk_';
         const ITEMS_PER_PAGE = 30;
 
-        // State
         let allData = [];
         let currentLang = 'cn';
         let currentProduct = 'all';
         let currentPage = 1;
         let searchQuery = '';
-        let isLoading = true;
-        let loadErrors = [];
 
-        // Product translations
         const productLabels = {
             cn: { all: '全部', vacuum: '扫地机', scrubber: '洗地机', cleaner: '吸尘器', dryer: '吹风机', pool: '泳池机器人' },
             en: { all: 'All', vacuum: 'Robot Vacuum', scrubber: 'Floor Scrubber', cleaner: 'Vacuum Cleaner', dryer: 'Hair Dryer', pool: 'Pool Robot' },
@@ -282,72 +93,67 @@
             '泳池机器人': 'pool', 'Pool Robot': 'pool', 'プールロボット': 'pool', '수영장로봇': 'pool'
         };
 
-        // Debug function
-        function showDebug(info) {
-            const debugEl = document.getElementById('debug-info');
-            debugEl.style.display = 'block';
-            debugEl.textContent = typeof info === 'object' ? JSON.stringify(info, null, 2) : info;
+        // 获取产品名称（兼容字符串和对象格式）
+        function getProductName(item, lang) {
+            const p = item.product;
+            if (typeof p === 'string') return p;
+            if (p && typeof p === 'object') return p[lang] || p.cn || p.en || 'Others';
+            return 'Others';
         }
 
-        // Initialize
+        // 获取问题文本（兼容字符串和对象格式）
+        function getQuestion(item, lang) {
+            const q = item.question;
+            if (typeof q === 'string') return q;
+            if (q && typeof q === 'object') return q[lang] || q.cn || q.en || '';
+            return '';
+        }
+
+        // 获取答案文本（兼容字符串和对象格式）
+        function getAnswer(item, lang) {
+            const a = item.answer || item.solution;
+            if (typeof a === 'string') return a;
+            if (a && typeof a === 'object') return a[lang] || a.cn || a.en || '';
+            return '';
+        }
+
         async function init() {
             try {
                 await loadAllData();
                 renderProductTabs();
                 renderContent();
                 document.getElementById('total-count').textContent = allData.length + ' 条 FAQ';
-                isLoading = false;
             } catch (error) {
-                console.error('Error loading data:', error);
-                showDebug({ error: error.message, stack: error.stack });
-                document.getElementById('content').innerHTML = '<div class="error">❌ 加载数据失败<br><small>' + error.message + '</small></div>';
+                console.error(error);
+                document.getElementById('content').innerHTML = '<div class="loading">加载失败: ' + error.message + '</div>';
             }
         }
 
-        // Load all data chunks
         async function loadAllData() {
             const config = await fetch(CONFIG_URL).then(r => r.json());
             const totalChunks = config.totalChunks;
-            
             allData = [];
-            loadErrors = [];
             
             for (let i = 0; i < totalChunks; i++) {
                 try {
                     const chunk = await loadChunk(i);
-                    // 兼容两种格式: {faqs: [...]} 或直接 [...]
                     const faqs = Array.isArray(chunk) ? chunk : (chunk.faqs || []);
                     allData = allData.concat(faqs);
                     console.log('Chunk', i, 'loaded:', faqs.length, 'FAQs');
                 } catch (err) {
-                    console.error('Failed to load chunk', i, err);
-                    loadErrors.push({ chunk: i, error: err.message });
+                    console.error('Chunk', i, 'error:', err);
                 }
             }
-            
             console.log('Total loaded:', allData.length, 'FAQs');
-            showDebug({ 
-                totalLoaded: allData.length, 
-                errors: loadErrors,
-                sample: allData.slice(0, 2).map(item => ({
-                    product: item.product,
-                    question: item.question?.cn?.substring(0, 30)
-                }))
-            });
         }
 
-        // Load single chunk
         async function loadChunk(index) {
             const response = await fetch(CHUNK_PREFIX + index + '.json.gz');
-            if (!response.ok) {
-                throw new Error('HTTP ' + response.status);
-            }
             const compressed = await response.arrayBuffer();
             const decompressed = pako.inflate(new Uint8Array(compressed), { to: 'string' });
             return JSON.parse(decompressed);
         }
 
-        // Set language
         function setLang(lang) {
             currentLang = lang;
             currentPage = 1;
@@ -358,7 +164,6 @@
             renderContent();
         }
 
-        // Set product filter
         function setProduct(product) {
             currentProduct = product;
             currentPage = 1;
@@ -366,14 +171,12 @@
             renderContent();
         }
 
-        // Handle search
         function handleSearch(value) {
             searchQuery = value.toLowerCase().trim();
             currentPage = 1;
             renderContent();
         }
 
-        // Render product tabs
         function renderProductTabs() {
             const counts = getProductCounts();
             const labels = productLabels[currentLang];
@@ -381,164 +184,108 @@
             container.innerHTML = Object.entries(labels).map(([key, label]) => {
                 const count = counts[key] || 0;
                 const active = currentProduct === key ? 'active' : '';
-                return '<button class="product-tab ' + active + '" data-product="' + key + '">' + label + ' (' + count + ')</button>';
+                return '<button class="product-tab ' + active + '" onclick="setProduct(\'' + key + '\')">' + label + ' (' + count + ')</button>';
             }).join('');
-            
-            container.querySelectorAll('.product-tab').forEach(tab => {
-                tab.addEventListener('click', () => setProduct(tab.dataset.product));
-            });
         }
 
-        // Get product counts
         function getProductCounts() {
             const counts = { all: allData.length };
             allData.forEach(item => {
-                const productCn = item.product?.cn || item.categories?.[0] || 'Others';
-                if (productCn.includes('扫地')) counts.vacuum = (counts.vacuum || 0) + 1;
-                else if (productCn.includes('洗地')) counts.scrubber = (counts.scrubber || 0) + 1;
-                else if (productCn.includes('吸尘')) counts.cleaner = (counts.cleaner || 0) + 1;
-                else if (productCn.includes('吹风')) counts.dryer = (counts.dryer || 0) + 1;
-                else if (productCn.includes('泳池')) counts.pool = (counts.pool || 0) + 1;
+                const productName = getProductName(item, 'cn');
+                if (productName.includes('扫地')) counts.vacuum = (counts.vacuum || 0) + 1;
+                else if (productName.includes('洗地')) counts.scrubber = (counts.scrubber || 0) + 1;
+                else if (productName.includes('吸尘')) counts.cleaner = (counts.cleaner || 0) + 1;
+                else if (productName.includes('吹风')) counts.dryer = (counts.dryer || 0) + 1;
+                else if (productName.includes('泳池')) counts.pool = (counts.pool || 0) + 1;
             });
             return counts;
         }
 
-        // Filter and paginate data
         function getFilteredData() {
             return allData.filter(item => {
                 if (currentProduct !== 'all') {
-                    const productCn = item.product?.cn || item.categories?.[0] || '';
-                    const productMap = { vacuum: '扫地', scrubber: '洗地', cleaner: '吸尘', dryer: '吹风', pool: '泳池' };
-                    if (!productCn.includes(productMap[currentProduct])) return false;
+                    const productName = getProductName(item, 'cn');
+                    const map = { vacuum: '扫地', scrubber: '洗地', cleaner: '吸尘', dryer: '吹风', pool: '泳池' };
+                    if (!productName.includes(map[currentProduct])) return false;
                 }
                 if (searchQuery) {
-                    const q = (item.question?.[currentLang] || '').toLowerCase();
-                    const a = (item.answer?.[currentLang] || '').toLowerCase();
+                    const q = getQuestion(item, currentLang).toLowerCase();
+                    const a = getAnswer(item, currentLang).toLowerCase();
                     return (q + ' ' + a).includes(searchQuery);
                 }
                 return true;
             });
         }
 
-        // Render content
         function renderContent() {
-            if (isLoading) return;
-
             const filtered = getFilteredData();
             const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
             const start = (currentPage - 1) * ITEMS_PER_PAGE;
             const pageData = filtered.slice(start, start + ITEMS_PER_PAGE);
 
-            const container = document.getElementById('content');
-
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="loading">未找到匹配的 FAQ</div>';
-                return;
-            }
-
-            document.getElementById('stats').textContent = 
-                '共 ' + filtered.length + ' 条 · 第 ' + currentPage + '/' + totalPages + ' 页' +
-                (loadErrors.length > 0 ? ' (加载错误: ' + loadErrors.length + '个chunk)' : '');
+            document.getElementById('stats').textContent = '共 ' + filtered.length + ' 条 · 第 ' + currentPage + '/' + totalPages + ' 页';
 
             let html = '<div>';
-            pageData.forEach((item, i) => {
-                html += renderFAQCard(item, start + i);
+            pageData.forEach(item => {
+                html += renderFAQCard(item);
             });
             html += '</div>';
 
             if (totalPages > 1) {
-                html += renderPagination(totalPages);
+                html += '<div class="pagination">';
+                html += '<button class="page-btn" onclick="changePage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>←</button>';
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                        html += '<button class="page-btn ' + (i === currentPage ? 'active' : '') + '" onclick="changePage(' + i + ')">' + i + '</button>';
+                    }
+                }
+                html += '<button class="page-btn" onclick="changePage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>→</button>';
+                html += '</div>';
             }
 
+            const container = document.getElementById('content');
             container.innerHTML = html;
 
             container.querySelectorAll('.faq-card').forEach(card => {
-                card.addEventListener('click', (e) => {
+                card.onclick = function(e) {
                     if (e.target.closest('a')) return;
-                    card.classList.toggle('expanded');
-                });
+                    this.classList.toggle('expanded');
+                };
             });
         }
 
-        // Render FAQ card
-        function renderFAQCard(item, index) {
-            const productName = item.product?.[currentLang] || item.product?.cn || 'Others';
-            const productCn = item.product?.cn || '';
+        function renderFAQCard(item) {
+            const productName = getProductName(item, currentLang);
+            const productCn = getProductName(item, 'cn');
             const productModel = item.product_model || '';
-            const question = item.question?.[currentLang] || '';
-            const answer = item.answer?.[currentLang] || '';
-            const colorClass = productColors[productCn] || productColors[productName] || 'vacuum';
+            const question = getQuestion(item, currentLang);
+            const answer = getAnswer(item, currentLang);
+            const colorClass = productColors[productCn] || productColors[productName] || '';
 
-            return '<div class="faq-card" data-index="' + index + '">' +
-                '<div class="faq-header">' +
-                    '<div class="faq-badge">' +
-                        '<span class="product-tag ' + colorClass + '">' + escapeHtml(productName) + '</span>' +
-                        (productModel ? '<span class="product-model">' + escapeHtml(productModel) + '</span>' : '') +
-                    '</div>' +
-                    '<div class="faq-content">' +
-                        '<div class="faq-question">' +
-                            '<span class="faq-icon">Q</span>' +
-                            '<span>' + escapeHtml(question) + '</span>' +
-                        '</div>' +
-                    '</div>' +
-                    '<span class="faq-toggle">▼</span>' +
-                '</div>' +
-                '<div class="faq-answer">' +
-                    '<div class="faq-answer-inner">' + formatAnswer(answer) + '</div>' +
-                '</div>' +
-            '</div>';
+            return '<div class="faq-card"><div class="faq-header"><div class="faq-badge"><span class="product-tag ' + colorClass + '">' + escapeHtml(productName) + '</span>' + (productModel ? '<span class="product-model">' + escapeHtml(productModel) + '</span>' : '') + '</div><div class="faq-content"><div class="faq-question"><span class="faq-icon">Q</span><span>' + escapeHtml(question) + '</span></div></div><span class="faq-toggle">▼</span></div><div class="faq-answer"><div class="faq-answer-inner">' + formatAnswer(answer) + '</div></div></div>';
         }
 
-        // Format answer with links
         function formatAnswer(text) {
             if (!text) return '';
-            return escapeHtml(text).replace(
-                /(https?:\/\/[^\s]+)/g,
-                '<a href="$1" target="_blank" rel="noopener">$1</a>'
-            );
+            return escapeHtml(text).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
         }
 
-        // Render pagination
-        function renderPagination(totalPages) {
-            let html = '<div class="pagination">';
-            html += '<button class="page-btn" ' + (currentPage === 1 ? 'disabled' : '') + ' onclick="changePage(' + (currentPage - 1) + ')">←</button>';
-
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-                    html += '<button class="page-btn ' + (i === currentPage ? 'active' : '') + '" onclick="changePage(' + i + ')">' + i + '</button>';
-                } else if (i === currentPage - 3 || i === currentPage + 3) {
-                    html += '<span class="page-ellipsis">...</span>';
-                }
-            }
-
-            html += '<button class="page-btn" ' + (currentPage === totalPages ? 'disabled' : '') + ' onclick="changePage(' + (currentPage + 1) + ')">→</button>';
-            html += '</div>';
-            return html;
-        }
-
-        // Change page
         function changePage(page) {
             currentPage = page;
             renderContent();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Escape HTML
         function escapeHtml(text) {
             if (!text) return '';
-            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
-        // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.addEventListener('click', () => setLang(btn.dataset.lang));
+                btn.onclick = function() { setLang(this.dataset.lang); };
             });
-            
-            document.getElementById('search-box').addEventListener('input', function() {
-                handleSearch(this.value);
-            });
-            
+            document.getElementById('search-box').oninput = function() { handleSearch(this.value); };
             init();
         });
     </script>
