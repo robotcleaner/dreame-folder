@@ -699,8 +699,8 @@
                 // Filter by search
                 if (searchQuery) {
                     const question = item.question?.[currentLang] || '';
-                    const solution = item.solution?.[currentLang] || '';
-                    const combined = (question + ' ' + solution).toLowerCase();
+                    const answer = item.answer?.[currentLang] || '';
+                    const combined = (question + ' ' + answer).toLowerCase();
                     return combined.includes(searchQuery);
                 }
 
@@ -821,7 +821,7 @@
             const productCn = item.product?.cn || item.categories?.[0] || 'Others';
             const productModel = item.product_model || '';
             const question = item.question?.[currentLang] || item.question?.cn || '';
-            const solution = item.solution?.[currentLang] || item.solution?.cn || '';
+            const answer = item.answer?.[currentLang] || item.answer?.cn || '';
             const colorClass = productColors[productCn] || 'vacuum';
 
             return `
@@ -840,7 +840,7 @@
                         <span class="faq-toggle">▼</span>
                     </div>
                     <div class="faq-answer">
-                        <div class="faq-answer-inner">${escapeHtml(solution)}</div>
+                        <div class="faq-answer-inner">${escapeHtml(answer)}</div>
                     </div>
                 </div>
             `;
