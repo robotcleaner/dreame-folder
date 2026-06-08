@@ -9,39 +9,23 @@
         :root {
             --primary: #dc2626;
             --primary-light: #fef2f2;
-            --primary-dark: #991b1b;
             --gray-50: #f9fafb;
             --gray-100: #f3f4f6;
             --gray-200: #e5e7eb;
-            --gray-300: #d1d5db;
-            --gray-400: #9ca3af;
             --gray-500: #6b7280;
-            --gray-600: #4b5563;
             --gray-700: #374151;
-            --gray-800: #1f2937;
             --gray-900: #111827;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --radius: 8px;
-            --radius-lg: 12px;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
             background: var(--gray-50);
-            color: var(--gray-800);
+            color: var(--gray-900);
             line-height: 1.6;
         }
-
-        /* Header */
         .header {
             background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             color: white;
@@ -50,763 +34,383 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: var(--shadow-lg);
         }
-
-        .header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+        .header h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .header p { opacity: 0.9; font-size: 0.95rem; }
+        .container { max-width: 900px; margin: 0 auto; padding: 1rem; }
+        .controls {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
         }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 0.875rem;
-        }
-
-        /* Language Switcher */
-        .lang-switcher {
+        .lang-selector {
             display: flex;
-            justify-content: center;
             gap: 0.5rem;
-            margin-top: 1rem;
+            margin-bottom: 1rem;
             flex-wrap: wrap;
         }
-
         .lang-btn {
             padding: 0.5rem 1rem;
-            border: 2px solid rgba(255,255,255,0.3);
-            background: rgba(255,255,255,0.1);
-            color: white;
+            border: 1px solid var(--gray-200);
+            background: white;
             border-radius: var(--radius);
             cursor: pointer;
             font-size: 0.875rem;
-            font-weight: 500;
             transition: all 0.2s;
         }
-
-        .lang-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        .lang-btn.active {
-            background: white;
-            color: var(--primary);
-            border-color: white;
-        }
-
-        /* Search Section */
-        .search-section {
-            background: white;
-            padding: 1.5rem 1rem;
-            border-bottom: 1px solid var(--gray-200);
-            position: sticky;
-            top: 140px;
-            z-index: 90;
-        }
-
-        .search-container {
-            max-width: 600px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .search-input {
+        .lang-btn:hover { background: var(--gray-50); }
+        .lang-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .search-box {
             width: 100%;
-            padding: 0.875rem 1rem 0.875rem 2.75rem;
-            border: 2px solid var(--gray-200);
-            border-radius: var(--radius-lg);
-            font-size: 1rem;
-            transition: all 0.2s;
-            background: var(--gray-50);
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
         }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray-400);
-        }
-
-        /* Product Filter */
-        .filter-section {
-            background: white;
-            padding: 1rem;
-            border-bottom: 1px solid var(--gray-200);
-            position: sticky;
-            top: 220px;
-            z-index: 80;
-        }
-
-        .filter-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .filter-title {
-            font-size: 0.875rem;
-            color: var(--gray-500);
-            margin-bottom: 0.75rem;
-            font-weight: 500;
-        }
-
-        .filter-tabs {
+        .search-box:focus { outline: none; border-color: var(--primary); }
+        .product-tabs {
             display: flex;
             gap: 0.5rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
             flex-wrap: wrap;
         }
-
-        .filter-tab {
-            padding: 0.625rem 1.25rem;
+        .product-tab {
+            padding: 0.5rem 0.875rem;
             border: 1px solid var(--gray-200);
             background: white;
-            border-radius: var(--radius);
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--gray-600);
+            font-size: 0.8rem;
+            white-space: nowrap;
             transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.375rem;
         }
-
-        .filter-tab:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .filter-tab.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .filter-count {
-            background: rgba(255,255,255,0.2);
-            padding: 0.125rem 0.5rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
-        }
-
-        /* Main Content */
-        .main-content {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 1.5rem 1rem;
-            min-height: calc(100vh - 400px);
-        }
-
-        /* Loading State */
-        .loading {
-            text-align: center;
-            padding: 4rem 2rem;
-        }
-
-        .loading-spinner {
-            width: 48px;
-            height: 48px;
-            border: 3px solid var(--gray-200);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            color: var(--gray-500);
-            font-size: 0.875rem;
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-        }
-
-        .empty-icon {
-            font-size: 4rem;
+        .product-tab:hover { background: var(--gray-50); }
+        .product-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .stats {
+            background: white;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
             margin-bottom: 1rem;
-        }
-
-        .empty-title {
-            font-size: 1.25rem;
-            color: var(--gray-700);
-            margin-bottom: 0.5rem;
-        }
-
-        .empty-desc {
-            color: var(--gray-500);
             font-size: 0.875rem;
+            color: var(--gray-500);
         }
-
-        /* FAQ Card */
-        .faq-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
         .faq-card {
             background: white;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow);
             overflow: hidden;
-            transition: all 0.2s;
             cursor: pointer;
+            transition: box-shadow 0.2s;
         }
-
-        .faq-card:hover {
-            box-shadow: var(--shadow-md);
-            border-color: var(--gray-300);
-        }
-
-        .faq-card.expanded {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 1px var(--primary);
-        }
-
+        .faq-card:hover { box-shadow: var(--shadow-md); }
         .faq-header {
-            padding: 1.25rem;
+            padding: 1rem;
             display: flex;
             align-items: flex-start;
-            gap: 1rem;
+            gap: 0.75rem;
         }
-
         .faq-badge {
             display: flex;
             flex-direction: column;
             gap: 0.25rem;
-            flex-shrink: 0;
+            min-width: 100px;
         }
-
         .product-tag {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 600;
-            padding: 0.25rem 0.625rem;
-            border-radius: var(--radius);
-            text-transform: uppercase;
-            letter-spacing: 0.025em;
+            text-align: center;
         }
-
-        .product-tag.vacuum { background: #dbeafe; color: #1e40af; }
-        .product-tag.scrubber { background: #dcfce7; color: #166534; }
-        .product-tag.hair { background: #fce7f3; color: #9d174d; }
-        .product-tag.cleaner { background: #fef3c7; color: #92400e; }
-
+        .product-tag.vacuum { background: #dbeafe; color: #1d4ed8; }
+        .product-tag.scrubber { background: #dcfce7; color: #15803d; }
+        .product-tag.cleaner { background: #fef3c7; color: #b45309; }
+        .product-tag.dryer { background: #fce7f3; color: #be185d; }
+        .product-tag.pool { background: #e0f2fe; color: #0369a1; }
         .product-model {
-            font-size: 0.6875rem;
+            font-size: 0.7rem;
             color: var(--gray-500);
-            padding: 0 0.625rem;
-            max-width: 120px;
+            text-align: center;
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
+            max-width: 100px;
         }
-
-        .faq-content {
-            flex: 1;
-            min-width: 0;
-        }
-
+        .faq-content { flex: 1; }
         .faq-question {
             font-weight: 600;
-            color: var(--gray-800);
-            font-size: 1rem;
-            line-height: 1.5;
+            color: var(--gray-900);
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            align-items: flex-start;
+            gap: 0.5rem;
         }
-
         .faq-icon {
-            width: 24px;
-            height: 24px;
-            background: var(--primary-light);
-            color: var(--primary);
-            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             font-weight: 700;
             flex-shrink: 0;
         }
-
         .faq-toggle {
-            margin-left: auto;
             color: var(--gray-400);
+            font-size: 0.75rem;
             transition: transform 0.2s;
-            flex-shrink: 0;
         }
-
-        .faq-card.expanded .faq-toggle {
-            transform: rotate(180deg);
-            color: var(--primary);
-        }
-
+        .faq-card.expanded .faq-toggle { transform: rotate(180deg); }
         .faq-answer {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease-out;
+            background: var(--gray-50);
         }
-
-        .faq-card.expanded .faq-answer {
-            max-height: 2000px;
-        }
-
+        .faq-card.expanded .faq-answer { max-height: 2000px; }
         .faq-answer-inner {
-            padding: 0 1.25rem 1.25rem 3.5rem;
-            color: var(--gray-600);
-            font-size: 0.9375rem;
+            padding: 1rem;
+            padding-left: calc(100px + 1.75rem);
+            color: var(--gray-700);
+            font-size: 0.95rem;
             line-height: 1.7;
-            white-space: pre-wrap;
         }
-
-        /* Pagination */
+        .faq-answer-inner a { color: var(--primary); }
+        .loading, .error {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-500);
+        }
+        .error { color: #dc2626; }
         .pagination {
             display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 2rem;
-            padding: 1rem;
+            gap: 0.25rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
         }
-
         .page-btn {
-            padding: 0.5rem 0.875rem;
+            padding: 0.5rem 0.75rem;
             border: 1px solid var(--gray-200);
             background: white;
             border-radius: var(--radius);
             cursor: pointer;
             font-size: 0.875rem;
-            color: var(--gray-600);
-            transition: all 0.2s;
             min-width: 36px;
         }
-
-        .page-btn:hover:not(:disabled) {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .page-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .page-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .page-ellipsis {
-            color: var(--gray-400);
-            padding: 0.5rem;
-        }
-
-        /* Stats */
-        .stats-bar {
-            background: var(--gray-100);
-            padding: 0.75rem 1rem;
-            border-radius: var(--radius);
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.875rem;
-            color: var(--gray-600);
-        }
-
-        .stats-count {
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        /* Responsive */
-        @media (max-width: 640px) {
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .filter-section {
-                top: 200px;
-            }
-
-            .search-section {
-                top: 120px;
-            }
-
-            .faq-header {
-                padding: 1rem;
-            }
-
-            .faq-answer-inner {
-                padding: 0 1rem 1rem 1rem;
-            }
-
-            .faq-badge {
-                min-width: 80px;
-            }
+        .page-btn:hover:not(:disabled) { background: var(--gray-50); }
+        .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .page-ellipsis { padding: 0.5rem; color: var(--gray-400); }
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.25rem; }
+            .faq-header { flex-direction: column; }
+            .faq-badge { flex-direction: row; align-items: center; min-width: auto; }
+            .faq-answer-inner { padding-left: 1rem; }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <h1>Dreame FAQ</h1>
-        <p data-i18n="subtitle">智能产品问答系统</p>
-        <div class="lang-switcher">
-            <button class="lang-btn active" data-lang="cn">中文</button>
-            <button class="lang-btn" data-lang="en">English</button>
-            <button class="lang-btn" data-lang="jp">日本語</button>
-            <button class="lang-btn" data-lang="kr">한국어</button>
-        </div>
-    </header>
-
-    <section class="search-section">
-        <div class="search-container">
-            <span class="search-icon">🔍</span>
-            <input type="text" class="search-input" id="searchInput" placeholder="搜索问题或关键词..." data-i18n-placeholder="searchPlaceholder">
-        </div>
-    </section>
-
-    <section class="filter-section">
-        <div class="filter-container">
-            <div class="filter-title" data-i18n="filterTitle">产品分类</div>
-            <div class="filter-tabs" id="filterTabs">
-                <!-- Tabs will be rendered by JS -->
+    <div class="header">
+        <h1>🔍 Dreame FAQ 智能问答</h1>
+        <p>全球多语言售后知识库 · <span id="total-count">加载中...</span></p>
+    </div>
+    <div class="container">
+        <div class="controls">
+            <div class="lang-selector">
+                <button class="lang-btn active" onclick="setLang('cn')">中文</button>
+                <button class="lang-btn" onclick="setLang('en')">English</button>
+                <button class="lang-btn" onclick="setLang('jp')">日本語</button>
+                <button class="lang-btn" onclick="setLang('kr')">한국어</button>
             </div>
+            <input type="text" class="search-box" id="search-box" placeholder="搜索问题或答案..." oninput="handleSearch(this.value)">
         </div>
-    </section>
-
-    <main class="main-content">
+        <div class="product-tabs" id="product-tabs"></div>
+        <div class="stats" id="stats"></div>
         <div id="content">
-            <div class="loading">
-                <div class="loading-spinner"></div>
-                <div class="loading-text" data-i18n="loading">正在加载数据...</div>
-            </div>
+            <div class="loading">📦 正在加载 FAQ 数据...</div>
         </div>
-    </main>
+    </div>
 
     <script>
         // Configuration
-        const CONFIG = {
-            itemsPerPage: 30
-        };
-
-        // Internationalization
-        const i18n = {
-            cn: {
-                subtitle: '智能产品问答系统',
-                searchPlaceholder: '搜索问题或关键词...',
-                filterTitle: '产品分类',
-                loading: '正在加载数据...',
-                emptyTitle: '暂无相关问题',
-                emptyDesc: '请尝试其他关键词或切换产品分类',
-                all: '全部',
-                products: {
-                    '扫地机': '扫地机',
-                    '洗地机': '洗地机',
-                    '吸尘器': '吸尘器',
-                    '吹风机': '吹风机',
-                    'Others': '其他'
-                }
-            },
-            en: {
-                subtitle: 'Smart Product Q&A System',
-                searchPlaceholder: 'Search questions or keywords...',
-                filterTitle: 'Product Category',
-                loading: 'Loading data...',
-                emptyTitle: 'No related questions found',
-                emptyDesc: 'Try different keywords or switch product category',
-                all: 'All',
-                products: {
-                    '扫地机': 'Robot Vacuum',
-                    '洗地机': 'Floor Scrubber',
-                    '吸尘器': 'Vacuum Cleaner',
-                    '吹风机': 'Hair Dryer',
-                    'Others': 'Others'
-                }
-            },
-            jp: {
-                subtitle: 'スマート製品Q&Aシステム',
-                searchPlaceholder: '質問やキーワードを検索...',
-                filterTitle: '製品カテゴリー',
-                loading: 'データを読み込み中...',
-                emptyTitle: '関連する質問がありません',
-                emptyDesc: '別のキーワードを試すか、製品カテゴリーを切り替えてください',
-                all: 'すべて',
-                products: {
-                    '扫地机': 'ロボット掃除機',
-                    '洗地机': '床洗浄機',
-                    '吸尘器': '掃除機',
-                    '吹风机': 'ヘアドライヤー',
-                    'Others': 'その他'
-                }
-            },
-            kr: {
-                subtitle: '스마트 제품 Q&A 시스템',
-                searchPlaceholder: '질문이나 키워드 검색...',
-                filterTitle: '제품 카테고리',
-                loading: '데이터 로딩 중...',
-                emptyTitle: '관련 질문이 없습니다',
-                emptyDesc: '다른 키워드를 시도하거나 제품 카테고리를 변경하세요',
-                all: '전체',
-                products: {
-                    '扫地机': '로봇청소기',
-                    '洗地机': '바닥세정기',
-                    '吸尘器': '진공청소기',
-                    '吹风机': '헤어드라이어',
-                    'Others': '기타'
-                }
-            }
-        };
-
-        // Product color mapping
-        const productColors = {
-            '扫地机': 'vacuum',
-            '洗地机': 'scrubber',
-            '吹风机': 'hair',
-            '吸尘器': 'cleaner',
-            'Others': 'vacuum'
-        };
+        const CONFIG_URL = 'config.json';
+        const CHUNK_PREFIX = 'faq_chunk_';
+        const ITEMS_PER_PAGE = 30;
 
         // State
-        let currentLang = localStorage.getItem('faqLang') || 'cn';
-        let currentFilter = 'all';
-        let searchQuery = '';
-        let currentPage = 1;
         let allData = [];
-        let filteredData = [];
+        let currentLang = 'cn';
+        let currentProduct = 'all';
+        let currentPage = 1;
+        let searchQuery = '';
+        let isLoading = true;
+
+        // Product translations
+        const productLabels = {
+            cn: { all: '全部', vacuum: '扫地机', scrubber: '洗地机', cleaner: '吸尘器', dryer: '吹风机', pool: '泳池机器人' },
+            en: { all: 'All', vacuum: 'Robot Vacuum', scrubber: 'Floor Scrubber', cleaner: 'Vacuum Cleaner', dryer: 'Hair Dryer', pool: 'Pool Robot' },
+            jp: { all: 'すべて', vacuum: 'ロボット掃除機', scrubber: '床洗浄機', cleaner: '掃除機', dryer: 'ヘアドライヤー', pool: 'プールロボット' },
+            kr: { all: '전체', vacuum: '로봇청소기', scrubber: '바닥세정기', cleaner: '진공청소기', dryer: '헤어드라이어', pool: '수영장로봇' }
+        };
+
+        const productColors = {
+            '扫地机': 'vacuum', 'Robot Vacuum': 'vacuum', 'ロボット掃除機': 'vacuum', '로봇청소기': 'vacuum',
+            '洗地机': 'scrubber', 'Floor Scrubber': 'scrubber', '床洗浄機': 'scrubber', '바닥세정기': 'scrubber',
+            '吸尘器': 'cleaner', 'Vacuum Cleaner': 'cleaner', '掃除機': 'cleaner', '진공청소기': 'cleaner',
+            '吹风机': 'dryer', 'Hair Dryer': 'dryer', 'ヘアドライヤー': 'dryer', '헤어드라이어': 'dryer',
+            '泳池机器人': 'pool', 'Pool Robot': 'pool', 'プールロボット': 'pool', '수영장로봇': 'pool'
+        };
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', async () => {
-            setupLanguageSwitcher();
-            setupSearch();
-            await loadData();
-        });
-
-        // Setup language switcher
-        function setupLanguageSwitcher() {
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === currentLang);
-                btn.addEventListener('click', () => {
-                    currentLang = btn.dataset.lang;
-                    localStorage.setItem('faqLang', currentLang);
-                    updateLanguageUI();
-                    renderFilters();
-                    renderContent();
-                });
-            });
-            updateLanguageUI();
-        }
-
-        // Update language UI
-        function updateLanguageUI() {
-            const texts = i18n[currentLang];
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.dataset.i18n;
-                if (texts[key]) el.textContent = texts[key];
-            });
-            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-                const key = el.dataset.i18nPlaceholder;
-                if (texts[key]) el.placeholder = texts[key];
-            });
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === currentLang);
-            });
-        }
-
-        // Setup search
-        function setupSearch() {
-            const searchInput = document.getElementById('searchInput');
-            let debounceTimer;
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    searchQuery = e.target.value.toLowerCase().trim();
-                    currentPage = 1;
-                    filterData();
-                    renderContent();
-                }, 180);
-            });
-        }
-
-        // Load data
-        async function loadData() {
+        async function init() {
             try {
-                const configRes = await fetch('config.json');
-                const config = await configRes.json();
-                const totalChunks = config.totalChunks || 1;
-
-                const chunks = await Promise.all(
-                    Array.from({ length: totalChunks }, async (_, i) => {
-                        try {
-                            const res = await fetch(`faq_chunk_${i}.json.gz`);
-                            const blob = await res.blob();
-                            const arrayBuffer = await blob.arrayBuffer();
-                            const uint8Array = new Uint8Array(arrayBuffer);
-                            const decompressed = pako.inflate(uint8Array, { to: 'string' });
-                            return JSON.parse(decompressed);
-                        } catch (e) {
-                            console.warn(`Failed to load chunk ${i} as gzip, trying json...`);
-                            const res = await fetch(`faq_chunk_${i}.json`);
-                            return await res.json();
-                        }
-                    })
-                );
-
-                allData = chunks.flat();
-                console.log(`Loaded ${allData.length} FAQ items`);
-                
-                filterData();
-                renderFilters();
+                await loadAllData();
+                renderProductTabs();
                 renderContent();
+                document.getElementById('total-count').textContent = allData.length + ' 条 FAQ';
+                isLoading = false;
             } catch (error) {
-                console.error('Failed to load data:', error);
-                document.getElementById('content').innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">⚠️</div>
-                        <div class="empty-title">加载失败</div>
-                        <div class="empty-desc">请刷新页面重试</div>
-                    </div>
-                `;
+                console.error('Error loading data:', error);
+                document.getElementById('content').innerHTML = '<div class="error">❌ 加载数据失败，请刷新页面重试</div>';
             }
         }
 
-        // Filter data
-        function filterData() {
-            filteredData = allData.filter(item => {
-                // Filter by product
-                if (currentFilter !== 'all') {
-                    const productName = item.product?.cn || item.categories?.[0];
-                    if (productName !== currentFilter) return false;
-                }
+        // Load all data chunks
+        async function loadAllData() {
+            const config = await fetch(CONFIG_URL).then(r => r.json());
+            const totalChunks = config.totalChunks;
 
+            const chunks = await Promise.all(
+                Array.from({ length: totalChunks }, (_, i) => loadChunk(i))
+            );
+
+            allData = chunks.flatMap(chunk => chunk.faqs || []);
+            console.log('Loaded', allData.length, 'FAQs');
+        }
+
+        // Load single chunk
+        async function loadChunk(index) {
+            const response = await fetch(CHUNK_PREFIX + index + '.json.gz');
+            const compressed = await response.arrayBuffer();
+            const decompressed = pako.inflate(new Uint8Array(compressed), { to: 'string' });
+            return JSON.parse(decompressed);
+        }
+
+        // Set language
+        function setLang(lang) {
+            currentLang = lang;
+            currentPage = 1;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderProductTabs();
+            renderContent();
+        }
+
+        // Set product filter
+        function setProduct(product) {
+            currentProduct = product;
+            currentPage = 1;
+            renderProductTabs();
+            renderContent();
+        }
+
+        // Handle search
+        function handleSearch(value) {
+            searchQuery = value.toLowerCase().trim();
+            currentPage = 1;
+            renderContent();
+        }
+
+        // Render product tabs
+        function renderProductTabs() {
+            const counts = getProductCounts();
+            const labels = productLabels[currentLang];
+            const container = document.getElementById('product-tabs');
+
+            let html = '';
+            for (const [key, label] of Object.entries(labels)) {
+                const count = counts[key] || 0;
+                const active = currentProduct === key ? 'active' : '';
+                html += '<button class="product-tab ' + active + '" onclick="setProduct(&quot;' + key + '&quot;)">' + label + ' (' + count + ')</button>';
+            }
+            container.innerHTML = html;
+        }
+
+        // Get product counts
+        function getProductCounts() {
+            const counts = { all: allData.length };
+            allData.forEach(item => {
+                const productCn = item.product?.cn || item.categories?.[0] || 'Others';
+                if (productCn.includes('扫地')) counts.vacuum = (counts.vacuum || 0) + 1;
+                else if (productCn.includes('洗地')) counts.scrubber = (counts.scrubber || 0) + 1;
+                else if (productCn.includes('吸尘')) counts.cleaner = (counts.cleaner || 0) + 1;
+                else if (productCn.includes('吹风')) counts.dryer = (counts.dryer || 0) + 1;
+                else if (productCn.includes('泳池')) counts.pool = (counts.pool || 0) + 1;
+            });
+            return counts;
+        }
+
+        // Filter and paginate data
+        function getFilteredData() {
+            return allData.filter(item => {
+                // Filter by product
+                if (currentProduct !== 'all') {
+                    const productCn = item.product?.cn || item.categories?.[0] || '';
+                    const productMap = { vacuum: '扫地', scrubber: '洗地', cleaner: '吸尘', dryer: '吹风', pool: '泳池' };
+                    if (!productCn.includes(productMap[currentProduct])) return false;
+                }
                 // Filter by search
                 if (searchQuery) {
-                    const question = item.question?.[currentLang] || '';
-                    const answer = item.answer?.[currentLang] || '';
-                    const combined = (question + ' ' + answer).toLowerCase();
-                    return combined.includes(searchQuery);
+                    const q = (item.question?.[currentLang] || '').toLowerCase();
+                    const a = (item.answer?.[currentLang] || '').toLowerCase();
+                    return (q + ' ' + a).includes(searchQuery);
                 }
-
                 return true;
-            });
-        }
-
-        // Render filters
-        function renderFilters() {
-            const container = document.getElementById('filterTabs');
-            const texts = i18n[currentLang];
-            
-            // Count by product
-            const counts = {};
-            allData.forEach(item => {
-                const product = item.product?.cn || item.categories?.[0] || 'Others';
-                counts[product] = (counts[product] || 0) + 1;
-            });
-
-            const products = ['扫地机', '洗地机', '吸尘器', '吹风机'];
-            const hasOthers = counts['Others'] > 0;
-
-            let html = `
-                <button class="filter-tab ${currentFilter === 'all' ? 'active' : ''}" data-filter="all">
-                    ${texts.all}
-                    <span class="filter-count">${allData.length}</span>
-                </button>
-            `;
-
-            products.forEach(product => {
-                if (counts[product]) {
-                    html += `
-                        <button class="filter-tab ${currentFilter === product ? 'active' : ''}" data-filter="${product}">
-                            ${texts.products[product]}
-                            <span class="filter-count">${counts[product]}</span>
-                        </button>
-                    `;
-                }
-            });
-
-            if (hasOthers) {
-                html += `
-                    <button class="filter-tab ${currentFilter === 'Others' ? 'active' : ''}" data-filter="Others">
-                        ${texts.products['Others']}
-                        <span class="filter-count">${counts['Others']}</span>
-                    </button>
-                `;
-            }
-
-            container.innerHTML = html;
-
-            // Add click handlers
-            container.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    currentFilter = tab.dataset.filter;
-                    currentPage = 1;
-                    filterData();
-                    renderFilters();
-                    renderContent();
-                });
             });
         }
 
         // Render content
         function renderContent() {
-            const container = document.getElementById('content');
-            const texts = i18n[currentLang];
+            if (isLoading) return;
 
-            if (filteredData.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">🔍</div>
-                        <div class="empty-title">${texts.emptyTitle}</div>
-                        <div class="empty-desc">${texts.emptyDesc}</div>
-                    </div>
-                `;
+            const filtered = getFilteredData();
+            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const pageData = filtered.slice(start, start + ITEMS_PER_PAGE);
+
+            const container = document.getElementById('content');
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="loading">未找到匹配的 FAQ</div>';
                 return;
             }
 
-            // Pagination
-            const totalPages = Math.ceil(filteredData.length / CONFIG.itemsPerPage);
-            const start = (currentPage - 1) * CONFIG.itemsPerPage;
-            const end = start + CONFIG.itemsPerPage;
-            const pageData = filteredData.slice(start, end);
+            // Update stats
+            document.getElementById('stats').textContent = '共 ' + filtered.length + ' 条 · 第 ' + currentPage + '/' + totalPages + ' 页';
 
-            // Stats
-            const statsHtml = `
-                <div class="stats-bar">
-                    <span>共找到 <span class="stats-count">${filteredData.length}</span> 条问题</span>
-                    <span>第 ${currentPage} / ${totalPages} 页</span>
-                </div>
-            `;
-
-            // FAQ List
-            const listHtml = `
-                <div class="faq-list">
-                    ${pageData.map((item, index) => renderFAQCard(item, start + index)).join('')}
-                </div>
-            `;
+            // Render cards
+            let html = '<div>';
+            pageData.forEach((item, i) => {
+                html += renderFAQCard(item, start + i);
+            });
+            html += '</div>';
 
             // Pagination
-            const paginationHtml = renderPagination(totalPages);
+            if (totalPages > 1) {
+                html += renderPagination(totalPages);
+            }
 
-            container.innerHTML = statsHtml + listHtml + paginationHtml;
+            container.innerHTML = html;
 
-            // Add click handlers for FAQ cards
+            // Add click handlers
             container.querySelectorAll('.faq-card').forEach(card => {
                 card.addEventListener('click', (e) => {
                     if (e.target.closest('a')) return;
@@ -817,82 +421,57 @@
 
         // Render FAQ card
         function renderFAQCard(item, index) {
-            const productName = item.product?.[currentLang] || item.product?.cn || item.categories?.[0] || 'Others';
-            const productCn = item.product?.cn || item.categories?.[0] || 'Others';
+            const productName = item.product?.[currentLang] || item.product?.cn || 'Others';
+            const productCn = item.product?.cn || '';
             const productModel = item.product_model || '';
-            const question = item.question?.[currentLang] || item.question?.cn || '';
-            const answer = item.answer?.[currentLang] || item.answer?.cn || '';
-            const colorClass = productColors[productCn] || 'vacuum';
+            const question = item.question?.[currentLang] || '';
+            const answer = item.answer?.[currentLang] || '';
+            const colorClass = productColors[productCn] || productColors[productName] || 'vacuum';
 
-            return `
-                <div class="faq-card" data-index="${index}">
-                    <div class="faq-header">
-                        <div class="faq-badge">
-                            <span class="product-tag ${colorClass}">${productName}</span>
-                            ${productModel ? `<span class="product-model" title="${productModel}">${productModel}</span>` : ''}
-                        </div>
-                        <div class="faq-content">
-                            <div class="faq-question">
-                                <span class="faq-icon">Q</span>
-                                <span>${escapeHtml(question)}</span>
-                            </div>
-                        </div>
-                        <span class="faq-toggle">▼</span>
-                    </div>
-                    <div class="faq-answer">
-                        <div class="faq-answer-inner">${escapeHtml(answer)}</div>
-                    </div>
-                </div>
-            `;
+            return '<div class="faq-card" data-index="' + index + '">' +
+                '<div class="faq-header">' +
+                    '<div class="faq-badge">' +
+                        '<span class="product-tag ' + colorClass + '">' + escapeHtml(productName) + '</span>' +
+                        (productModel ? '<span class="product-model">' + escapeHtml(productModel) + '</span>' : '') +
+                    '</div>' +
+                    '<div class="faq-content">' +
+                        '<div class="faq-question">' +
+                            '<span class="faq-icon">Q</span>' +
+                            '<span>' + escapeHtml(question) + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                    '<span class="faq-toggle">▼</span>' +
+                '</div>' +
+                '<div class="faq-answer">' +
+                    '<div class="faq-answer-inner">' + formatAnswer(answer) + '</div>' +
+                '</div>' +
+            '</div>';
+        }
+
+        // Format answer with links
+        function formatAnswer(text) {
+            if (!text) return '';
+            // Convert URLs to links
+            return escapeHtml(text).replace(
+                /(https?:\/\/[^\s]+)/g,
+                '<a href="$1" target="_blank" rel="noopener">$1</a>'
+            );
         }
 
         // Render pagination
         function renderPagination(totalPages) {
-            if (totalPages <= 1) return '';
-
             let html = '<div class="pagination">';
-            
-            // Previous
-            html += `
-                <button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">
-                    ←
-                </button>
-            `;
+            html += '<button class="page-btn" ' + (currentPage === 1 ? 'disabled' : '') + ' onclick="changePage(' + (currentPage - 1) + ')">←</button>';
 
-            // Page numbers
-            const maxVisible = 5;
-            let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-            let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-            
-            if (endPage - startPage < maxVisible - 1) {
-                startPage = Math.max(1, endPage - maxVisible + 1);
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    html += '<button class="page-btn ' + (i === currentPage ? 'active' : '') + '" onclick="changePage(' + i + ')">' + i + '</button>';
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    html += '<span class="page-ellipsis">...</span>';
+                }
             }
 
-            if (startPage > 1) {
-                html += `<button class="page-btn" onclick="changePage(1)">1</button>`;
-                if (startPage > 2) html += `<span class="page-ellipsis">...</span>`;
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                html += `
-                    <button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">
-                        ${i}
-                    </button>
-                `;
-            }
-
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) html += `<span class="page-ellipsis">...</span>`;
-                html += `<button class="page-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
-            }
-
-            // Next
-            html += `
-                <button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">
-                    →
-                </button>
-            `;
-
+            html += '<button class="page-btn" ' + (currentPage === totalPages ? 'disabled' : '') + ' onclick="changePage(' + (currentPage + 1) + ')">→</button>';
             html += '</div>';
             return html;
         }
@@ -907,10 +486,11 @@
         // Escape HTML
         function escapeHtml(text) {
             if (!text) return '';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
         }
+
+        // Start
+        init();
     </script>
 </body>
 </html>
