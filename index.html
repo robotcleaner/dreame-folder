@@ -34,12 +34,14 @@
         .faq-content { flex: 1; }
         .faq-question { font-weight: 600; color: var(--gray-900); display: flex; align-items: flex-start; gap: 0.5rem; }
         .faq-icon { background: var(--primary); color: white; width: 20px; height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+        .faq-icon-a { background: #16a34a; }
         .faq-toggle { color: var(--gray-500); font-size: 0.75rem; transition: transform 0.2s; }
         .faq-card.expanded .faq-toggle { transform: rotate(180deg); }
         .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; background: var(--gray-50); }
         .faq-card.expanded .faq-answer { max-height: 2000px; }
         .faq-answer-inner { padding: 1rem; padding-left: calc(100px + 1.75rem); color: var(--gray-700); font-size: 0.95rem; }
         .loading { text-align: center; padding: 3rem; color: var(--gray-500); }
+        .translation-note { font-size: 0.75rem; color: var(--gray-500); font-style: italic; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--gray-200); }
         .pagination { display: flex; justify-content: center; gap: 0.25rem; margin-top: 1.5rem; flex-wrap: wrap; }
         .page-btn { padding: 0.5rem 0.75rem; border: 1px solid var(--gray-200); background: white; border-radius: var(--radius); cursor: pointer; }
         .page-btn.active { background: var(--primary); color: white; }
@@ -93,10 +95,26 @@
             '泳池机器人': 'pool', 'Pool Robot': 'pool', 'プールロボット': 'pool', '수영장로봇': 'pool'
         };
 
+        // 检查数据是否是新格式（有多语言翻译）
+        function hasTranslation(item) {
+            const q = item.question;
+            const a = item.answer || item.solution;
+            return (q && typeof q === 'object') || (a && typeof a === 'object');
+        }
+
         // 获取产品名称（兼容字符串和对象格式）
         function getProductName(item, lang) {
             const p = item.product;
-            if (typeof p === 'string') return p;
+            if (typeof p === 'string') {
+                // 旧格式：返回产品名映射或使用原值
+                const map = {
+                    'cn': { '扫地机': '扫地机', '洗地机': '洗地机', '吸尘器': '吸尘器', '吹风机': '吹风机', '泳池机器人': '泳池机器人' },
+                    'en': { '扫地机': 'Robot Vacuum', '洗地机': 'Floor Scrubber', '吸尘器': 'Vacuum Cleaner', '吹风机': 'Hair Dryer', '泳池机器人': 'Pool Robot' },
+                    'jp': { '扫地机': 'ロボット掃除機', '洗地机': '床洗浄機', '吸尘器': '掃除機', '吹风机': 'ヘアドライヤー', '泳池机器人': 'プールロボット' },
+                    'kr': { '扫地机': '로봇청소기', '洗地机': '바닥세정기', '吸尘器': '진공청소기', '吹风机': '헤어드라이어', '泳池机器人': '수영장로봇' }
+                };
+                return (map[lang] && map[lang][p]) ? map[lang][p] : p;
+            }
             if (p && typeof p === 'object') return p[lang] || p.cn || p.en || 'Others';
             return 'Others';
         }
@@ -211,7 +229,10 @@
                 if (searchQuery) {
                     const q = getQuestion(item, currentLang).toLowerCase();
                     const a = getAnswer(item, currentLang).toLowerCase();
-                    return (q + ' ' + a).includes(searchQuery);
+                    // 搜索时包含所有语言
+                    const qAll = [getQuestion(item, 'cn'), getQuestion(item, 'en'), getQuestion(item, 'jp'), getQuestion(item, 'kr')].join(' ').toLowerCase();
+                    const aAll = [getAnswer(item, 'cn'), getAnswer(item, 'en'), getAnswer(item, 'jp'), getAnswer(item, 'kr')].join(' ').toLowerCase();
+                    return (qAll + ' ' + aAll).includes(searchQuery);
                 }
                 return true;
             });
@@ -261,12 +282,22 @@
             const question = getQuestion(item, currentLang);
             const answer = getAnswer(item, currentLang);
             const colorClass = productColors[productCn] || productColors[productName] || '';
+            
+            // 检查是否缺少翻译
+            const hasTrans = hasTranslation(item);
+            const translationNote = (!hasTrans && currentLang !== 'cn') ? 
+                '<div class="translation-note">（此内容暂无' + getLangName(currentLang) + '翻译，显示中文原文）</div>' : '';
 
-            return '<div class="faq-card"><div class="faq-header"><div class="faq-badge"><span class="product-tag ' + colorClass + '">' + escapeHtml(productName) + '</span>' + (productModel ? '<span class="product-model">' + escapeHtml(productModel) + '</span>' : '') + '</div><div class="faq-content"><div class="faq-question"><span class="faq-icon">Q</span><span>' + escapeHtml(question) + '</span></div></div><span class="faq-toggle">▼</span></div><div class="faq-answer"><div class="faq-answer-inner">' + formatAnswer(answer) + '</div></div></div>';
+            return '<div class="faq-card"><div class="faq-header"><div class="faq-badge"><span class="product-tag ' + colorClass + '">' + escapeHtml(productName) + '</span>' + (productModel ? '<span class="product-model">' + escapeHtml(productModel) + '</span>' : '') + '</div><div class="faq-content"><div class="faq-question"><span class="faq-icon">Q</span><span>' + escapeHtml(question) + '</span></div></div><span class="faq-toggle">▼</span></div><div class="faq-answer"><div class="faq-answer-inner"><span class="faq-icon faq-icon-a">A</span>' + formatAnswer(answer) + translationNote + '</div></div></div>';
+        }
+        
+        function getLangName(lang) {
+            const names = { cn: '中文', en: '英文', jp: '日文', kr: '韩文' };
+            return names[lang] || lang;
         }
 
         function formatAnswer(text) {
-            if (!text) return '';
+            if (!text) return '<span style="color: var(--gray-500);">（暂无答案）</span>';
             return escapeHtml(text).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
         }
 
