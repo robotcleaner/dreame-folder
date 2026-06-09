@@ -153,7 +153,7 @@
         }
 
         async function loadChunk(index) {
-            const response = await fetch(`${CHUNK_PREFIX}${index}.json.gz`);
+            const response = await fetch(`${CHUNK_PREFIX}${index}.json.gz?v=20240609`);
             const compressed = await response.arrayBuffer();
             const decompressed = pako.inflate(new Uint8Array(compressed), { to: 'string' });
             return JSON.parse(decompressed);
