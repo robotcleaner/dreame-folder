@@ -95,18 +95,10 @@
             '泳池机器人': 'pool', 'Pool Robot': 'pool', 'プールロボット': 'pool', '수영장로봇': 'pool'
         };
 
-        // 检查数据是否是新格式（有多语言翻译）
-        function hasTranslation(item) {
-            const q = item.question;
-            const a = item.answer || item.solution;
-            return (q && typeof q === 'object') || (a && typeof a === 'object');
-        }
-
         // 获取产品名称（兼容字符串和对象格式）
         function getProductName(item, lang) {
             const p = item.product;
             if (typeof p === 'string') {
-                // 旧格式：返回产品名映射或使用原值
                 const map = {
                     'cn': { '扫地机': '扫地机', '洗地机': '洗地机', '吸尘器': '吸尘器', '吹风机': '吹风机', '泳池机器人': '泳池机器人' },
                     'en': { '扫地机': 'Robot Vacuum', '洗地机': 'Floor Scrubber', '吸尘器': 'Vacuum Cleaner', '吹风机': 'Hair Dryer', '泳池机器人': 'Pool Robot' },
@@ -128,11 +120,31 @@
         }
 
         // 获取答案文本（兼容字符串和对象格式）
+        // 修复：当其他语言答案和问题时，自动回退到中文答案
         function getAnswer(item, lang) {
             const a = item.answer || item.solution;
             if (typeof a === 'string') return a;
-            if (a && typeof a === 'object') return a[lang] || a.cn || a.en || '';
+            if (a && typeof a === 'object') {
+                const answer = a[lang];
+                const question = getQuestion(item, lang);
+                // 如果当前语言的答案和问题时，说明翻译不完整，回退到中文
+                if (lang !== 'cn' && answer && question && answer.trim() === question.trim()) {
+                    return a.cn || '';
+                }
+                return answer || a.cn || a.en || '';
+            }
             return '';
+        }
+
+        // 检查是否需要显示翻译提示
+        function needsTranslationNote(item, lang) {
+            if (lang === 'cn') return false;
+            const a = item.answer || item.solution;
+            if (!a || typeof a !== 'object') return false;
+            const answer = a[lang];
+            const question = getQuestion(item, lang);
+            // 如果答案和问题时，或者当前语言没有答案
+            return !answer || (answer && question && answer.trim() === question.trim());
         }
 
         async function init() {
@@ -227,9 +239,6 @@
                     if (!productName.includes(map[currentProduct])) return false;
                 }
                 if (searchQuery) {
-                    const q = getQuestion(item, currentLang).toLowerCase();
-                    const a = getAnswer(item, currentLang).toLowerCase();
-                    // 搜索时包含所有语言
                     const qAll = [getQuestion(item, 'cn'), getQuestion(item, 'en'), getQuestion(item, 'jp'), getQuestion(item, 'kr')].join(' ').toLowerCase();
                     const aAll = [getAnswer(item, 'cn'), getAnswer(item, 'en'), getAnswer(item, 'jp'), getAnswer(item, 'kr')].join(' ').toLowerCase();
                     return (qAll + ' ' + aAll).includes(searchQuery);
@@ -283,9 +292,9 @@
             const answer = getAnswer(item, currentLang);
             const colorClass = productColors[productCn] || productColors[productName] || '';
             
-            // 检查是否缺少翻译
-            const hasTrans = hasTranslation(item);
-            const translationNote = (!hasTrans && currentLang !== 'cn') ? 
+            // 检查是否需要显示翻译提示
+            const showNote = needsTranslationNote(item, currentLang);
+            const translationNote = showNote ? 
                 '<div class="translation-note">（此内容暂无' + getLangName(currentLang) + '翻译，显示中文原文）</div>' : '';
 
             return '<div class="faq-card"><div class="faq-header"><div class="faq-badge"><span class="product-tag ' + colorClass + '">' + escapeHtml(productName) + '</span>' + (productModel ? '<span class="product-model">' + escapeHtml(productModel) + '</span>' : '') + '</div><div class="faq-content"><div class="faq-question"><span class="faq-icon">Q</span><span>' + escapeHtml(question) + '</span></div></div><span class="faq-toggle">▼</span></div><div class="faq-answer"><div class="faq-answer-inner"><span class="faq-icon faq-icon-a">A</span>' + formatAnswer(answer) + translationNote + '</div></div></div>';
@@ -298,7 +307,7 @@
 
         function formatAnswer(text) {
             if (!text) return '<span style="color: var(--gray-500);">（暂无答案）</span>';
-            return escapeHtml(text).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            return escapeHtml(text).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>').replace(/\n/g, '<br>');
         }
 
         function changePage(page) {
