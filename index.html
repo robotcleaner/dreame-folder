@@ -81,70 +81,52 @@
         let searchQuery = '';
 
         const productLabels = {
-            cn: { all: '全部', vacuum: '扫地机', scrubber: '洗地机', cleaner: '吸尘器', dryer: '吹风机', pool: '泳池机器人' },
-            en: { all: 'All', vacuum: 'Robot Vacuum', scrubber: 'Floor Scrubber', cleaner: 'Vacuum Cleaner', dryer: 'Hair Dryer', pool: 'Pool Robot' },
-            jp: { all: 'すべて', vacuum: 'ロボット掃除機', scrubber: '床洗浄機', cleaner: '掃除機', dryer: 'ヘアドライヤー', pool: 'プールロボット' },
-            kr: { all: '전체', vacuum: '로봇청소기', scrubber: '바닥세정기', cleaner: '진공청소기', dryer: '헤어드라이어', pool: '수영장로봇' }
+            cn: { all: '全部', vacuum: '扫地机', scrubber: '洗地机', cleaner: '吸尘器', dryer: '吹风机' },
+            en: { all: 'All', vacuum: 'Robot Vacuum', scrubber: 'Floor Scrubber', cleaner: 'Vacuum Cleaner', dryer: 'Hair Dryer' },
+            jp: { all: 'すべて', vacuum: 'ロボット掃除機', scrubber: '床洗浄機', cleaner: '掃除機', dryer: 'ヘアドライヤー' },
+            kr: { all: '전체', vacuum: '로봇청소기', scrubber: '바닥세정기', cleaner: '진공청소기', dryer: '헤어드라이어' }
         };
 
         const productColors = {
             '扫地机': 'vacuum', 'Robot Vacuum': 'vacuum', 'ロボット掃除機': 'vacuum', '로봇청소기': 'vacuum',
             '洗地机': 'scrubber', 'Floor Scrubber': 'scrubber', '床洗浄機': 'scrubber', '바닥세정기': 'scrubber',
             '吸尘器': 'cleaner', 'Vacuum Cleaner': 'cleaner', '掃除機': 'cleaner', '진공청소기': 'cleaner',
-            '吹风机': 'dryer', 'Hair Dryer': 'dryer', 'ヘアドライヤー': 'dryer', '헤어드라이어': 'dryer',
-            '泳池机器人': 'pool', 'Pool Robot': 'pool', 'プールロボット': 'pool', '수영장로봇': 'pool'
+            '吹风机': 'dryer', 'Hair Dryer': 'dryer', 'ヘアドライヤー': 'dryer', '헤어드라이어': 'dryer'
         };
 
-        // 获取产品名称（兼容字符串和对象格式）
-        function getProductName(item, lang) {
-            const p = item.product;
-            if (typeof p === 'string') {
-                const map = {
-                    'cn': { '扫地机': '扫地机', '洗地机': '洗地机', '吸尘器': '吸尘器', '吹风机': '吹风机', '泳池机器人': '泳池机器人' },
-                    'en': { '扫地机': 'Robot Vacuum', '洗地机': 'Floor Scrubber', '吸尘器': 'Vacuum Cleaner', '吹风机': 'Hair Dryer', '泳池机器人': 'Pool Robot' },
-                    'jp': { '扫地机': 'ロボット掃除機', '洗地机': '床洗浄機', '吸尘器': '掃除機', '吹风机': 'ヘアドライヤー', '泳池机器人': 'プールロボット' },
-                    'kr': { '扫地机': '로봇청소기', '洗地机': '바닥세정기', '吸尘器': '진공청소기', '吹风机': '헤어드라이어', '泳池机器人': '수영장로봇' }
-                };
-                return (map[lang] && map[lang][p]) ? map[lang][p] : p;
-            }
-            if (p && typeof p === 'object') return p[lang] || p.cn || p.en || 'Others';
-            return 'Others';
+        // 获取产品名称（自动翻译为当前语言）
+        function getProductName(productCN, lang) {
+            const map = {
+                'cn': { '扫地机': '扫地机', '洗地机': '洗地机', '吸尘器': '吸尘器', '吹风机': '吹风机' },
+                'en': { '扫地机': 'Robot Vacuum', '洗地机': 'Floor Scrubber', '吸尘器': 'Vacuum Cleaner', '吹风机': 'Hair Dryer' },
+                'jp': { '扫地机': 'ロボット掃除機', '洗地机': '床洗浄機', '吸尘器': '掃除機', '吹风机': 'ヘアドライヤー' },
+                'kr': { '扫地机': '로봇청소기', '洗地机': '바닥세정기', '吸尘器': '진공청소기', '吹风机': '헤어드라이어' }
+            };
+            return (map[lang] && map[lang][productCN]) ? map[lang][productCN] : productCN;
         }
 
-        // 获取问题文本（兼容字符串和对象格式）
+        // 获取问题文本
         function getQuestion(item, lang) {
-            const q = item.question;
-            if (typeof q === 'string') return q;
-            if (q && typeof q === 'object') return q[lang] || q.cn || q.en || '';
-            return '';
+            return item.question[lang] || item.question.cn || '';
         }
 
-        // 获取答案文本（兼容字符串和对象格式）
-        // 修复：当其他语言答案和问题时，自动回退到中文答案
+        // 获取答案文本（如果当前语言没有答案，回退到中文）
         function getAnswer(item, lang) {
-            const a = item.answer || item.solution;
-            if (typeof a === 'string') return a;
-            if (a && typeof a === 'object') {
-                const answer = a[lang];
-                const question = getQuestion(item, lang);
-                // 如果当前语言的答案和问题时，说明翻译不完整，回退到中文
-                if (lang !== 'cn' && answer && question && answer.trim() === question.trim()) {
-                    return a.cn || '';
-                }
-                return answer || a.cn || a.en || '';
+            const answer = item.solution[lang];
+            // 如果当前语言有有效答案，直接返回
+            if (answer && answer.trim()) {
+                return answer;
             }
-            return '';
+            // 否则回退到中文
+            return item.solution.cn || '';
         }
 
         // 检查是否需要显示翻译提示
         function needsTranslationNote(item, lang) {
             if (lang === 'cn') return false;
-            const a = item.answer || item.solution;
-            if (!a || typeof a !== 'object') return false;
-            const answer = a[lang];
-            const question = getQuestion(item, lang);
-            // 如果答案和问题时，或者当前语言没有答案
-            return !answer || (answer && question && answer.trim() === question.trim());
+            const answer = item.solution[lang];
+            // 如果当前语言没有答案，显示提示
+            return !answer || !answer.trim();
         }
 
         async function init() {
@@ -162,152 +144,133 @@
         async function loadAllData() {
             const config = await fetch(CONFIG_URL).then(r => r.json());
             const totalChunks = config.totalChunks;
-            allData = [];
-            
-            for (let i = 0; i < totalChunks; i++) {
-                try {
-                    const chunk = await loadChunk(i);
-                    const faqs = Array.isArray(chunk) ? chunk : (chunk.faqs || []);
-                    allData = allData.concat(faqs);
-                    console.log('Chunk', i, 'loaded:', faqs.length, 'FAQs');
-                } catch (err) {
-                    console.error('Chunk', i, 'error:', err);
-                }
-            }
-            console.log('Total loaded:', allData.length, 'FAQs');
+
+            const chunks = await Promise.all(
+                Array.from({length: totalChunks}, (_, i) => loadChunk(i))
+            );
+
+            allData = chunks.flat();
         }
 
         async function loadChunk(index) {
-            const response = await fetch(CHUNK_PREFIX + index + '.json.gz');
+            const response = await fetch(`${CHUNK_PREFIX}${index}.json.gz`);
             const compressed = await response.arrayBuffer();
             const decompressed = pako.inflate(new Uint8Array(compressed), { to: 'string' });
             return JSON.parse(decompressed);
         }
 
-        function setLang(lang) {
-            currentLang = lang;
-            currentPage = 1;
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === lang);
-            });
-            renderProductTabs();
-            renderContent();
-        }
-
-        function setProduct(product) {
-            currentProduct = product;
-            currentPage = 1;
-            renderProductTabs();
-            renderContent();
-        }
-
-        function handleSearch(value) {
-            searchQuery = value.toLowerCase().trim();
-            currentPage = 1;
-            renderContent();
-        }
-
         function renderProductTabs() {
-            const counts = getProductCounts();
-            const labels = productLabels[currentLang];
+            const products = ['all', 'vacuum', 'scrubber', 'cleaner', 'dryer'];
             const container = document.getElementById('product-tabs');
-            container.innerHTML = Object.entries(labels).map(([key, label]) => {
-                const count = counts[key] || 0;
-                const active = currentProduct === key ? 'active' : '';
-                return '<button class="product-tab ' + active + '" onclick="setProduct(\'' + key + '\')">' + label + ' (' + count + ')</button>';
+            container.innerHTML = products.map(p => {
+                const label = productLabels[currentLang][p];
+                const count = p === 'all' ? allData.length : allData.filter(i => {
+                    const productName = getProductName(i.product, 'cn');
+                    return productName === productLabels.cn[p];
+                }).length;
+                return `<button class="product-tab ${p === currentProduct ? 'active' : ''}" data-product="${p}">${label} (${count})</button>`;
             }).join('');
-        }
 
-        function getProductCounts() {
-            const counts = { all: allData.length };
-            allData.forEach(item => {
-                const productName = getProductName(item, 'cn');
-                if (productName.includes('扫地')) counts.vacuum = (counts.vacuum || 0) + 1;
-                else if (productName.includes('洗地')) counts.scrubber = (counts.scrubber || 0) + 1;
-                else if (productName.includes('吸尘')) counts.cleaner = (counts.cleaner || 0) + 1;
-                else if (productName.includes('吹风')) counts.dryer = (counts.dryer || 0) + 1;
-                else if (productName.includes('泳池')) counts.pool = (counts.pool || 0) + 1;
+            container.querySelectorAll('.product-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    currentProduct = tab.dataset.product;
+                    currentPage = 1;
+                    renderContent();
+                    renderProductTabs();
+                });
             });
-            return counts;
         }
 
-        function getFilteredData() {
+        function filterData() {
             return allData.filter(item => {
+                // 产品筛选
                 if (currentProduct !== 'all') {
-                    const productName = getProductName(item, 'cn');
-                    const map = { vacuum: '扫地', scrubber: '洗地', cleaner: '吸尘', dryer: '吹风', pool: '泳池' };
-                    if (!productName.includes(map[currentProduct])) return false;
+                    const productName = getProductName(item.product, 'cn');
+                    if (productName !== productLabels.cn[currentProduct]) return false;
                 }
+
+                // 搜索筛选
                 if (searchQuery) {
-                    const qAll = [getQuestion(item, 'cn'), getQuestion(item, 'en'), getQuestion(item, 'jp'), getQuestion(item, 'kr')].join(' ').toLowerCase();
-                    const aAll = [getAnswer(item, 'cn'), getAnswer(item, 'en'), getAnswer(item, 'jp'), getAnswer(item, 'kr')].join(' ').toLowerCase();
-                    return (qAll + ' ' + aAll).includes(searchQuery);
+                    const q = getQuestion(item, currentLang).toLowerCase();
+                    const a = getAnswer(item, currentLang).toLowerCase();
+                    const query = searchQuery.toLowerCase();
+                    return q.includes(query) || a.includes(query);
                 }
+
                 return true;
             });
         }
 
         function renderContent() {
-            const filtered = getFilteredData();
-            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
+            const filtered = filterData();
+            const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
             const start = (currentPage - 1) * ITEMS_PER_PAGE;
             const pageData = filtered.slice(start, start + ITEMS_PER_PAGE);
 
-            document.getElementById('stats').textContent = '共 ' + filtered.length + ' 条 · 第 ' + currentPage + '/' + totalPages + ' 页';
-
-            let html = '<div>';
-            pageData.forEach(item => {
-                html += renderFAQCard(item);
-            });
-            html += '</div>';
-
-            if (totalPages > 1) {
-                html += '<div class="pagination">';
-                html += '<button class="page-btn" onclick="changePage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>←</button>';
-                for (let i = 1; i <= totalPages; i++) {
-                    if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-                        html += '<button class="page-btn ' + (i === currentPage ? 'active' : '') + '" onclick="changePage(' + i + ')">' + i + '</button>';
-                    }
-                }
-                html += '<button class="page-btn" onclick="changePage(' + (currentPage + 1) + ')" ' + (currentPage === totalPages ? 'disabled' : '') + '>→</button>';
-                html += '</div>';
-            }
+            document.getElementById('stats').textContent = 
+                `显示 ${start + 1}-${Math.min(start + ITEMS_PER_PAGE, filtered.length)} / 共 ${filtered.length} 条`;
 
             const container = document.getElementById('content');
-            container.innerHTML = html;
+            container.innerHTML = pageData.map(item => {
+                const productName = getProductName(item.product, currentLang);
+                const productColor = productColors[productName] || '';
+                const q = getQuestion(item, currentLang);
+                const a = getAnswer(item, currentLang);
+                const showNote = needsTranslationNote(item, currentLang);
 
-            container.querySelectorAll('.faq-card').forEach(card => {
-                card.onclick = function(e) {
-                    if (e.target.closest('a')) return;
-                    this.classList.toggle('expanded');
-                };
-            });
+                return `
+                    <div class="faq-card" onclick="this.classList.toggle('expanded')">
+                        <div class="faq-header">
+                            <div class="faq-badge">
+                                <span class="product-tag ${productColor}">${productName}</span>
+                                ${item.model ? `<span class="product-model">${item.model}</span>` : ''}
+                            </div>
+                            <div class="faq-content">
+                                <div class="faq-question">
+                                    <span class="faq-icon">Q</span>
+                                    <span>${q.replace(/\n/g, '<br>')}</span>
+                                    <span class="faq-toggle">▼</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="faq-answer">
+                            <div class="faq-answer-inner">
+                                <div style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:0.5rem;">
+                                    <span class="faq-icon faq-icon-a">A</span>
+                                    <span>${a.replace(/\n/g, '<br>')}</span>
+                                </div>
+                                ${showNote ? `<div class="translation-note">（暂无${currentLang === 'en' ? '英文' : currentLang === 'jp' ? '日文' : '韩文'}翻译，显示中文答案）</div>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            renderPagination(totalPages);
         }
 
-        function renderFAQCard(item) {
-            const productName = getProductName(item, currentLang);
-            const productCn = getProductName(item, 'cn');
-            const productModel = item.product_model || '';
-            const question = getQuestion(item, currentLang);
-            const answer = getAnswer(item, currentLang);
-            const colorClass = productColors[productCn] || productColors[productName] || '';
-            
-            // 检查是否需要显示翻译提示
-            const showNote = needsTranslationNote(item, currentLang);
-            const translationNote = showNote ? 
-                '<div class="translation-note">（此内容暂无' + getLangName(currentLang) + '翻译，显示中文原文）</div>' : '';
+        function renderPagination(totalPages) {
+            if (totalPages <= 1) return;
 
-            return '<div class="faq-card"><div class="faq-header"><div class="faq-badge"><span class="product-tag ' + colorClass + '">' + escapeHtml(productName) + '</span>' + (productModel ? '<span class="product-model">' + escapeHtml(productModel) + '</span>' : '') + '</div><div class="faq-content"><div class="faq-question"><span class="faq-icon">Q</span><span>' + escapeHtml(question) + '</span></div></div><span class="faq-toggle">▼</span></div><div class="faq-answer"><div class="faq-answer-inner"><span class="faq-icon faq-icon-a">A</span>' + formatAnswer(answer) + translationNote + '</div></div></div>';
-        }
-        
-        function getLangName(lang) {
-            const names = { cn: '中文', en: '英文', jp: '日文', kr: '韩文' };
-            return names[lang] || lang;
-        }
+            const container = document.getElementById('content');
+            const pagination = document.createElement('div');
+            pagination.className = 'pagination';
 
-        function formatAnswer(text) {
-            if (!text) return '<span style="color: var(--gray-500);">（暂无答案）</span>';
-            return escapeHtml(text).replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>').replace(/\n/g, '<br>');
+            let buttons = [];
+            if (currentPage > 1) buttons.push(`<button class="page-btn" onclick="changePage(${currentPage - 1})">上一页</button>`);
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    buttons.push(`<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`);
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    buttons.push(`<span>...</span>`);
+                }
+            }
+
+            if (currentPage < totalPages) buttons.push(`<button class="page-btn" onclick="changePage(${currentPage + 1})">下一页</button>`);
+
+            pagination.innerHTML = buttons.join('');
+            container.appendChild(pagination);
         }
 
         function changePage(page) {
@@ -316,18 +279,25 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.onclick = function() { setLang(this.dataset.lang); };
+        // 语言切换
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLang = btn.dataset.lang;
+                renderProductTabs();
+                renderContent();
             });
-            document.getElementById('search-box').oninput = function() { handleSearch(this.value); };
-            init();
         });
+
+        // 搜索
+        document.getElementById('search-box').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            currentPage = 1;
+            renderContent();
+        });
+
+        init();
     </script>
 </body>
 </html>
