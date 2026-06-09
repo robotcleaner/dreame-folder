@@ -161,9 +161,18 @@
 
         async function loadChunk(index) {
             const response = await fetch(`${CHUNK_PREFIX}${index}.json.gz?v=20240609`);
-            const compressed = await response.arrayBuffer();
-            const decompressed = pako.inflate(new Uint8Array(compressed), { to: 'string' });
-            return JSON.parse(decompressed);
+            const buffer = await response.arrayBuffer();
+            const bytes = new Uint8Array(buffer);
+            // 检测是否为 gzip 格式（某些浏览器会自动解压 Content-Encoding: gzip）
+            let text;
+            if (bytes.length >= 2 && bytes[0] === 0x1f && bytes[1] === 0x8b) {
+                // 原始 gzip，手动解压
+                text = pako.inflate(bytes, { to: 'string' });
+            } else {
+                // 浏览器已自动解压（移动端 Safari 等）
+                text = new TextDecoder().decode(bytes);
+            }
+            return JSON.parse(text);
         }
 
         function renderProductTabs() {
