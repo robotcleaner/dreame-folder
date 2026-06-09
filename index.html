@@ -81,26 +81,27 @@
         let searchQuery = '';
 
         const productLabels = {
-            cn: { all: '全部', vacuum: '扫地机', scrubber: '洗地机', cleaner: '吸尘器', dryer: '吹风机' },
-            en: { all: 'All', vacuum: 'Robot Vacuum', scrubber: 'Floor Scrubber', cleaner: 'Vacuum Cleaner', dryer: 'Hair Dryer' },
-            jp: { all: 'すべて', vacuum: 'ロボット掃除機', scrubber: '床洗浄機', cleaner: '掃除機', dryer: 'ヘアドライヤー' },
-            kr: { all: '전체', vacuum: '로봇청소기', scrubber: '바닥세정기', cleaner: '진공청소기', dryer: '헤어드라이어' }
+            cn: { all: '全部', vacuum: '扫地机', scrubber: '洗地机', cleaner: '吸尘器', dryer: '吹风机', pool: '泳池机器人' },
+            en: { all: 'All', vacuum: 'Robot Vacuum', scrubber: 'Floor Scrubber', cleaner: 'Vacuum Cleaner', dryer: 'Hair Dryer', pool: 'Pool Robot' },
+            jp: { all: 'すべて', vacuum: 'ロボット掃除機', scrubber: '床洗浄機', cleaner: '掃除機', dryer: 'ヘアドライヤー', pool: 'プールロボット' },
+            kr: { all: '전체', vacuum: '로봇청소기', scrubber: '바닥세정기', cleaner: '진공청소기', dryer: '헤어드라이어', pool: '수영장 로봇' }
         };
 
         const productColors = {
             '扫地机': 'vacuum', 'Robot Vacuum': 'vacuum', 'ロボット掃除機': 'vacuum', '로봇청소기': 'vacuum',
             '洗地机': 'scrubber', 'Floor Scrubber': 'scrubber', '床洗浄機': 'scrubber', '바닥세정기': 'scrubber',
             '吸尘器': 'cleaner', 'Vacuum Cleaner': 'cleaner', '掃除機': 'cleaner', '진공청소기': 'cleaner',
-            '吹风机': 'dryer', 'Hair Dryer': 'dryer', 'ヘアドライヤー': 'dryer', '헤어드라이어': 'dryer'
+            '吹风机': 'dryer', 'Hair Dryer': 'dryer', 'ヘアドライヤー': 'dryer', '헤어드라이어': 'dryer',
+            '泳池机器人': 'pool', 'Pool Robot': 'pool', 'プールロボット': 'pool', '수영장 로봇': 'pool'
         };
 
         // 获取产品名称（自动翻译为当前语言）
         function getProductName(productCN, lang) {
             const map = {
-                'cn': { '扫地机': '扫地机', '洗地机': '洗地机', '吸尘器': '吸尘器', '吹风机': '吹风机' },
-                'en': { '扫地机': 'Robot Vacuum', '洗地机': 'Floor Scrubber', '吸尘器': 'Vacuum Cleaner', '吹风机': 'Hair Dryer' },
-                'jp': { '扫地机': 'ロボット掃除機', '洗地机': '床洗浄機', '吸尘器': '掃除機', '吹风机': 'ヘアドライヤー' },
-                'kr': { '扫地机': '로봇청소기', '洗地机': '바닥세정기', '吸尘器': '진공청소기', '吹风机': '헤어드라이어' }
+                'cn': { '扫地机': '扫地机', '洗地机': '洗地机', '吸尘器': '吸尘器', '吹风机': '吹风机', '泳池机器人': '泳池机器人' },
+                'en': { '扫地机': 'Robot Vacuum', '洗地机': 'Floor Scrubber', '吸尘器': 'Vacuum Cleaner', '吹风机': 'Hair Dryer', '泳池机器人': 'Pool Robot' },
+                'jp': { '扫地机': 'ロボット掃除機', '洗地机': '床洗浄機', '吸尘器': '掃除機', '吹风机': 'ヘアドライヤー', '泳池机器人': 'プールロボット' },
+                'kr': { '扫地机': '로봇청소기', '洗地机': '바닥세정기', '吸尘器': '진공청소기', '吹风机': '헤어드라이어', '泳池机器人': '수영장 로봇' }
             };
             return (map[lang] && map[lang][productCN]) ? map[lang][productCN] : productCN;
         }
@@ -160,7 +161,7 @@
         }
 
         function renderProductTabs() {
-            const products = ['all', 'vacuum', 'scrubber', 'cleaner', 'dryer'];
+            const products = ['all', 'vacuum', 'scrubber', 'cleaner', 'dryer', 'pool'];
             const container = document.getElementById('product-tabs');
             container.innerHTML = products.map(p => {
                 const label = productLabels[currentLang][p];
