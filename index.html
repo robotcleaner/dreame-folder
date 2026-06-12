@@ -44,6 +44,7 @@
         .product-tag.cleaner { background: #fef3c7; color: #b45309; }
         .product-tag.dryer { background: #fce7f3; color: #be185d; }
         .product-tag.pool { background: #e0f2fe; color: #0369a1; }
+        .product-tag.lawn { background: #dcfce7; color: #166534; }
         .product-model { font-size: 0.7rem; color: var(--gray-500); text-align: left; word-break: break-word; overflow-wrap: break-word; line-height: 1.4; max-height: 120px; overflow-y: auto; }
         .faq-content { flex: 1; }
         .faq-question { font-weight: 600; color: var(--gray-900); display: flex; align-items: flex-start; gap: 0.5rem; }
@@ -106,10 +107,10 @@
         let searchQuery = '';
 
         const productLabels = {
-            cn: { all: '全部', vacuum: '扫地机', scrubber: '洗地机', cleaner: '吸尘器', dryer: '吹风机', pool: '泳池机器人' },
-            en: { all: 'All', vacuum: 'Robot Vacuum', scrubber: 'Floor Scrubber', cleaner: 'Vacuum Cleaner', dryer: 'Hair Dryer', pool: 'Pool Robot' },
-            jp: { all: 'すべて', vacuum: 'ロボット掃除機', scrubber: '床洗浄機', cleaner: '掃除機', dryer: 'ヘアドライヤー', pool: 'プールロボット' },
-            kr: { all: '전체', vacuum: '로봇청소기', scrubber: '바닥세정기', cleaner: '진공청소기', dryer: '헤어드라이어', pool: '수영장 로봇' }
+            cn: { all: '全部', vacuum: '扫地机', scrubber: '洗地机', cleaner: '吸尘器', dryer: '吹风机', pool: '泳池机器人', lawn: '割草机' },
+            en: { all: 'All', vacuum: 'Robot Vacuum', scrubber: 'Floor Scrubber', cleaner: 'Vacuum Cleaner', dryer: 'Hair Dryer', pool: 'Pool Robot', lawn: 'Lawn Mower' },
+            jp: { all: 'すべて', vacuum: 'ロボット掃除機', scrubber: '床洗浄機', cleaner: '掃除機', dryer: 'ヘアドライヤー', pool: 'プールロボット', lawn: '芝刈り機' },
+            kr: { all: '전체', vacuum: '로봇청소기', scrubber: '바닥세정기', cleaner: '진공청소기', dryer: '헤어드라이어', pool: '수영장 로봇', lawn: '잔디 깎는 기계' }
         };
 
         const uiLabels = {
@@ -124,16 +125,17 @@
             '洗地机': 'scrubber', 'Floor Scrubber': 'scrubber', '床洗浄機': 'scrubber', '바닥세정기': 'scrubber',
             '吸尘器': 'cleaner', 'Vacuum Cleaner': 'cleaner', '掃除機': 'cleaner', '진공청소기': 'cleaner',
             '吹风机': 'dryer', 'Hair Dryer': 'dryer', 'ヘアドライヤー': 'dryer', '헤어드라이어': 'dryer',
-            '泳池机器人': 'pool', 'Pool Robot': 'pool', 'プールロボット': 'pool', '수영장 로봇': 'pool'
+            '泳池机器人': 'pool', 'Pool Robot': 'pool', 'プールロボット': 'pool', '수영장 로봇': 'pool',
+            '割草机': 'lawn', 'Lawn Mower': 'lawn', '芝刈り機': 'lawn', '잔디 깎는 기계': 'lawn'
         };
 
         // 获取产品名称（自动翻译为当前语言）
         function getProductName(productCN, lang) {
             const map = {
-                'cn': { '扫地机': '扫地机', '洗地机': '洗地机', '吸尘器': '吸尘器', '吹风机': '吹风机', '泳池机器人': '泳池机器人' },
-                'en': { '扫地机': 'Robot Vacuum', '洗地机': 'Floor Scrubber', '吸尘器': 'Vacuum Cleaner', '吹风机': 'Hair Dryer', '泳池机器人': 'Pool Robot' },
-                'jp': { '扫地机': 'ロボット掃除機', '洗地机': '床洗浄機', '吸尘器': '掃除機', '吹风机': 'ヘアドライヤー', '泳池机器人': 'プールロボット' },
-                'kr': { '扫地机': '로봇청소기', '洗地机': '바닥세정기', '吸尘器': '진공청소기', '吹风机': '헤어드라이어', '泳池机器人': '수영장 로봇' }
+                'cn': { '扫地机': '扫地机', '洗地机': '洗地机', '吸尘器': '吸尘器', '吹风机': '吹风机', '泳池机器人': '泳池机器人', '割草机': '割草机' },
+                'en': { '扫地机': 'Robot Vacuum', '洗地机': 'Floor Scrubber', '吸尘器': 'Vacuum Cleaner', '吹风机': 'Hair Dryer', '泳池机器人': 'Pool Robot', '割草机': 'Lawn Mower' },
+                'jp': { '扫地机': 'ロボット掃除機', '洗地机': '床洗浄機', '吸尘器': '掃除機', '吹风机': 'ヘアドライヤー', '泳池机器人': 'プールロボット', '割草机': '芝刈り機' },
+                'kr': { '扫地机': '로봇청소기', '洗地机': '바닥세정기', '吸尘器': '진공청소기', '吹风机': '헤어드라이어', '泳池机器人': '수영장 로봇', '割草机': '잔디 깎는 기계' }
             };
             return (map[lang] && map[lang][productCN]) ? map[lang][productCN] : productCN;
         }
@@ -211,7 +213,7 @@
         }
 
         function renderProductTabs() {
-            const products = ['all', 'vacuum', 'scrubber', 'cleaner', 'dryer', 'pool'];
+            const products = ['all', 'vacuum', 'scrubber', 'cleaner', 'dryer', 'pool', 'lawn'];
             const container = document.getElementById('product-tabs');
             container.innerHTML = products.map(p => {
                 const label = productLabels[currentLang][p];
