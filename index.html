@@ -108,9 +108,9 @@
 
         const productLabels = {
             cn: { all: '全部', vacuum: '扫地机', scrubber: '洗地机', cleaner: '吸尘器', dryer: '吹风机', pool: '泳池机器人', lawn: '割草机' },
-            en: { all: 'All', vacuum: 'Robot Vacuum', scrubber: 'Floor Scrubber', cleaner: 'Vacuum Cleaner', dryer: 'Hair Dryer', pool: 'Pool Robot', lawn: 'Lawn Mower' },
-            jp: { all: 'すべて', vacuum: 'ロボット掃除機', scrubber: '床洗浄機', cleaner: '掃除機', dryer: 'ヘアドライヤー', pool: 'プールロボット', lawn: '芝刈り機' },
-            kr: { all: '전체', vacuum: '로봇청소기', scrubber: '바닥세정기', cleaner: '진공청소기', dryer: '헤어드라이어', pool: '수영장 로봇', lawn: '잔디 깎는 기계' }
+            en: { all: 'All', vacuum: 'Robot Vacuum', scrubber: 'Wet and Dry Vacuum', cleaner: 'Cordless Stick Vacuum', dryer: 'Hair Dryer', pool: 'Cordless Robotic Pool Cleaner', lawn: 'Robot Lawn Mowers' },
+            jp: { all: 'すべて', vacuum: 'ロボット掃除機とモップ', scrubber: '床洗浄機', cleaner: 'コードレススティック掃除機', dryer: 'ヘアドライヤー', pool: 'コードレスロボットプールクリーナー', lawn: 'ロボット芝刈り機' },
+            kr: { all: '전체', vacuum: '로봇 청소기 및 물걸레 기능', scrubber: '바닥세정기', cleaner: '무선 스틱 진공청소기', dryer: '헤어드라이어', pool: '무선 로봇 풀 클리너', lawn: '로봇 예초기' }
         };
 
         const uiLabels = {
@@ -121,21 +121,21 @@
         };
 
         const productColors = {
-            '扫地机': 'vacuum', 'Robot Vacuum': 'vacuum', 'ロボット掃除機': 'vacuum', '로봇청소기': 'vacuum',
-            '洗地机': 'scrubber', 'Floor Scrubber': 'scrubber', '床洗浄機': 'scrubber', '바닥세정기': 'scrubber',
-            '吸尘器': 'cleaner', 'Vacuum Cleaner': 'cleaner', '掃除機': 'cleaner', '진공청소기': 'cleaner',
+            '扫地机': 'vacuum', 'Robot Vacuum': 'vacuum', 'ロボット掃除機とモップ': 'vacuum', '로봇 청소기 및 물걸레 기능': 'vacuum',
+            '洗地机': 'scrubber', 'Wet and Dry Vacuum': 'scrubber', '床洗浄機': 'scrubber', '바닥세정기': 'scrubber',
+            '吸尘器': 'cleaner', 'Cordless Stick Vacuum': 'cleaner', 'コードレススティック掃除機': 'cleaner', '무선 스틱 진공청소기': 'cleaner',
             '吹风机': 'dryer', 'Hair Dryer': 'dryer', 'ヘアドライヤー': 'dryer', '헤어드라이어': 'dryer',
-            '泳池机器人': 'pool', 'Pool Robot': 'pool', 'プールロボット': 'pool', '수영장 로봇': 'pool',
-            '割草机': 'lawn', 'Lawn Mower': 'lawn', '芝刈り機': 'lawn', '잔디 깎는 기계': 'lawn'
+            '泳池机器人': 'pool', 'Cordless Robotic Pool Cleaner': 'pool', 'コードレスロボットプールクリーナー': 'pool', '무선 로봇 풀 클리너': 'pool',
+            '割草机': 'lawn', 'Robot Lawn Mowers': 'lawn', 'ロボット芝刈り機': 'lawn', '로봇 예초기': 'lawn'
         };
 
         // 获取产品名称（自动翻译为当前语言）
         function getProductName(productCN, lang) {
             const map = {
                 'cn': { '扫地机': '扫地机', '洗地机': '洗地机', '吸尘器': '吸尘器', '吹风机': '吹风机', '泳池机器人': '泳池机器人', '割草机': '割草机' },
-                'en': { '扫地机': 'Robot Vacuum', '洗地机': 'Floor Scrubber', '吸尘器': 'Vacuum Cleaner', '吹风机': 'Hair Dryer', '泳池机器人': 'Pool Robot', '割草机': 'Lawn Mower' },
-                'jp': { '扫地机': 'ロボット掃除機', '洗地机': '床洗浄機', '吸尘器': '掃除機', '吹风机': 'ヘアドライヤー', '泳池机器人': 'プールロボット', '割草机': '芝刈り機' },
-                'kr': { '扫地机': '로봇청소기', '洗地机': '바닥세정기', '吸尘器': '진공청소기', '吹风机': '헤어드라이어', '泳池机器人': '수영장 로봇', '割草机': '잔디 깎는 기계' }
+                'en': { '扫地机': 'Robot Vacuum', '洗地机': 'Wet and Dry Vacuum', '吸尘器': 'Cordless Stick Vacuum', '吹风机': 'Hair Dryer', '泳池机器人': 'Cordless Robotic Pool Cleaner', '割草机': 'Robot Lawn Mowers' },
+                'jp': { '扫地机': 'ロボット掃除機とモップ', '洗地机': '床洗浄機', '吸尘器': 'コードレススティック掃除機', '吹风机': 'ヘアドライヤー', '泳池机器人': 'コードレスロボットプールクリーナー', '割草机': 'ロボット芝刈り機' },
+                'kr': { '扫地机': '로봇 청소기 및 물걸레 기능', '洗地机': '바닥세정기', '吸尘器': '무선 스틱 진공청소기', '吹风机': '헤어드라이어', '泳池机器人': '무선 로봇 풀 클리너', '割草机': '로봇 예초기' }
             };
             return (map[lang] && map[lang][productCN]) ? map[lang][productCN] : productCN;
         }
